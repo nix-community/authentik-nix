@@ -19,7 +19,7 @@
       };
     };
     authentik-src = { # change version string in outputs as well when updating
-      url = "github:goauthentik/authentik/version/2023.5.1";
+      url = "github:goauthentik/authentik/version/2023.5.3";
       flake = false;
     };
   };
@@ -34,7 +34,7 @@
     }:
     flake-utils.lib.eachDefaultSystem (system:
       let
-        authentik-version = "2023.5.1"; # to pass to the drvs of some components
+        authentik-version = "2023.5.3"; # to pass to the drvs of some components
         inherit (poetry2nix.legacyPackages.${system})
           mkPoetryEnv
           defaultPoetryOverrides;
