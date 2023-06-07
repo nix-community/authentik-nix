@@ -78,6 +78,7 @@ in
         requires = [ "postgresql.service" ];
         after = [ "postgresql.service" ];
         before = [ "authentik.service" ];
+        restartTriggers = [ config.environment.etc."authentik/config.yml".source ];
         serviceConfig = {
           Type = "oneshot";
           RemainAfterExit = true;
@@ -89,6 +90,7 @@ in
       authentik-worker = {
         requiredBy = [ "authentik.service" ];
         before = [ "authentik.service" ];
+        restartTriggers = [ config.environment.etc."authentik/config.yml".source ];
         serviceConfig = {
           RuntimeDirectory = "authentik";
           WorkingDirectory = "%t/authentik";
@@ -105,6 +107,7 @@ in
           "postgresql.service"
           "redis-authentik.service"
         ];
+        restartTriggers = [ config.environment.etc."authentik/config.yml".source ];
         preStart = ''
           ln -svf ${pkgs.authentik.staticWorkdirDeps}/* /var/lib/authentik/
         '';
