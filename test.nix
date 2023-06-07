@@ -4,10 +4,7 @@
 }:
 let
   # use a root-owned EnvironmentFile in production instead (systemd.services.<name>.serviceConfig.EnvironmentFile)
-  secrets = {
-    authentiksecret = "thissecretwillbeinthenixstore";
-    postgresql = "dontusethisinproduction";
-  };
+  authentiksecret = "thissecretwillbeinthenixstore";
 in
 pkgs.nixosTest {
   name = "authentik";
@@ -26,22 +23,14 @@ pkgs.nixosTest {
 
       services.authentik.enable = true;
 
-      services.postgresql.initialScript = pkgs.writeText "psql-init.sql" ''
-        CREATE DATABASE authentik;
-        CREATE USER authentik WITH PASSWORD '${secrets.postgresql}';
-        GRANT ALL PRIVILEGES ON DATABASE authentik TO authentik
-      '';
       systemd.services.authentik-migrate.serviceConfig.Environment = [
-        "AUTHENTIK_POSTGRESQL__PASSWORD=${secrets.postgresql}"
-        "AUTHENTIK_SECRET_KEY=${secrets.authentiksecret}"
+        "AUTHENTIK_SECRET_KEY=${authentiksecret}"
       ];
       systemd.services.authentik-worker.serviceConfig.Environment = [
-        "AUTHENTIK_POSTGRESQL__PASSWORD=${secrets.postgresql}"
-        "AUTHENTIK_SECRET_KEY=${secrets.authentiksecret}"
+        "AUTHENTIK_SECRET_KEY=${authentiksecret}"
       ];
       systemd.services.authentik.serviceConfig.Environment = [
-        "AUTHENTIK_POSTGRESQL__PASSWORD=${secrets.postgresql}"
-        "AUTHENTIK_SECRET_KEY=${secrets.authentiksecret}"
+        "AUTHENTIK_SECRET_KEY=${authentiksecret}"
       ];
 
       services.xserver.enable = true;

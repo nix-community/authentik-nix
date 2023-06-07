@@ -35,6 +35,11 @@ in
         options = {};
       };
     };
+
+    createDatabase = mkOption {
+      type = types.bool;
+      default = true;
+    };
   };
 
   config = mkIf cfg.enable {
@@ -42,6 +47,11 @@ in
       authentik.settings = {
         blueprints_dir = mkDefault "${pkgs.authentik.staticWorkdirDeps}/blueprints";
         template_dir = mkDefault "${pkgs.authentik.staticWorkdirDeps}/templates";
+        postgresql = {
+          user = mkDefault "authentik";
+          name = mkDefault "authentik";
+          host = mkDefault "";
+        };
       };
       redis.servers.authentik = {
         enable = true;
@@ -50,6 +60,10 @@ in
       postgresql = {
         enable = true;
         package = pkgs.postgresql_14;
+        ensureDatabases = mkIf cfg.createDatabase [ "authentik" ];
+        ensureUsers = mkIf cfg.createDatabase [
+          { name = "authentik"; ensurePermissions."DATABASE authentik" = "ALL PRIVILEGES"; }
+        ];
       };
     };
 
@@ -67,11 +81,8 @@ in
         serviceConfig = {
           Type = "oneshot";
           RemainAfterExit = true;
-          Environment = [
-            "AUTHENTIK_POSTGRESQL__USER=authentik"
-            "AUTHENTIK_POSTGRESQL__NAME=authentik"
-          ];
           DynamicUser = true;
+          User = "authentik";
           ExecStart = "${pkgs.authentik.migrate}/bin/migrate.py";
         };
       };
@@ -79,13 +90,10 @@ in
         requiredBy = [ "authentik.service" ];
         before = [ "authentik.service" ];
         serviceConfig = {
-          Environment = [
-            "AUTHENTIK_POSTGRESQL__USER=authentik"
-            "AUTHENTIK_POSTGRESQL__NAME=authentik"
-          ];
           RuntimeDirectory = "authentik";
           WorkingDirectory = "%t/authentik";
           DynamicUser = true;
+          User = "authentik";
           # TODO maybe make this configurable
           ExecStart = "${pkgs.authentik.celery}/bin/celery -A authentik.root.celery worker -Ofair --max-tasks-per-child=1 --autoscale 3,1 -E -B -s /tmp/celerybeat-schedule -Q authentik,authentik_scheduled,authentik_events";
         };
