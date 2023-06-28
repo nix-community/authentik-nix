@@ -169,6 +169,24 @@
             wrapProgram $out/bin/celery \
               --prefix PYTHONPATH : ${staticWorkdirDeps}
           '';
+          # terraform provider
+          terraform-provider-authentik = pkgs.buildGo118Module rec {
+            pname = "terraform-provider-authentik";
+            version = "2023.5.0";
+            src = pkgs.fetchFromGitHub {
+              owner = "goauthentik";
+              repo = pname;
+              rev = "v${version}";
+              sha256 = "sha256-fPdO8GpP24VDHEHxlIEaJE6H+i/HyIiD1cogRXVDN2k=";
+            };
+            doCheck = false; # tests are run against authentik -> vm test
+            vendorSha256 = "sha256-tVWb50HuHiLdOWT5nHCA5CKzqVXOyX4SFvO0Hb8do6k=";
+            postInstall = ''
+              path="$out/libexec/terraform-providers/registry.terraform.io/goauthentik/authentik/${version}/''${GOOS}_''${GOARCH}/"
+              mkdir -p "$path"
+              mv $out/bin/${pname} $path/${pname}_v${version}
+            '';
+          };
         };
         checks.default = (import ./test.nix {
           inherit pkgs;
