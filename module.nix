@@ -17,7 +17,7 @@ let
     mkEnableOption
     mkOption;
 
-  inherit (pkgs.authentik)
+  inherit (cfg.authentikComponents)
     migrate
     gopkgs
     celery
@@ -28,6 +28,16 @@ in
 {
   options.services.authentik = {
     enable = mkEnableOption "authentik";
+
+    authentikComponents = {
+      celery = mkOption { type = types.package; };
+      staticWorkdirDeps = mkOption { type = types.package; };
+      migrate = mkOption { type = types.package; };
+      pythonEnv = mkOption { type = types.package; };
+      frontend = mkOption { type = types.package; };
+      gopkgs = mkOption { type = types.package; };
+      docs = mkOption { type = types.package; };
+    };
 
     settings = mkOption {
       type = types.submodule {
@@ -45,8 +55,8 @@ in
   config = mkIf cfg.enable {
     services = {
       authentik.settings = {
-        blueprints_dir = mkDefault "${pkgs.authentik.staticWorkdirDeps}/blueprints";
-        template_dir = mkDefault "${pkgs.authentik.staticWorkdirDeps}/templates";
+        blueprints_dir = mkDefault "${cfg.authentikComponents.staticWorkdirDeps}/blueprints";
+        template_dir = mkDefault "${cfg.authentikComponents.staticWorkdirDeps}/templates";
         postgresql = {
           user = mkDefault "authentik";
           name = mkDefault "authentik";
@@ -84,7 +94,7 @@ in
           RemainAfterExit = true;
           DynamicUser = true;
           User = "authentik";
-          ExecStart = "${pkgs.authentik.migrate}/bin/migrate.py";
+          ExecStart = "${cfg.authentikComponents.migrate}/bin/migrate.py";
         };
       };
       authentik-worker = {
@@ -97,7 +107,7 @@ in
           DynamicUser = true;
           User = "authentik";
           # TODO maybe make this configurable
-          ExecStart = "${pkgs.authentik.celery}/bin/celery -A authentik.root.celery worker -Ofair --max-tasks-per-child=1 --autoscale 3,1 -E -B -s /tmp/celerybeat-schedule -Q authentik,authentik_scheduled,authentik_events";
+          ExecStart = "${cfg.authentikComponents.celery}/bin/celery -A authentik.root.celery worker -Ofair --max-tasks-per-child=1 --autoscale 3,1 -E -B -s /tmp/celerybeat-schedule -Q authentik,authentik_scheduled,authentik_events";
         };
       };
       authentik = {
@@ -109,7 +119,7 @@ in
         ];
         restartTriggers = [ config.environment.etc."authentik/config.yml".source ];
         preStart = ''
-          ln -svf ${pkgs.authentik.staticWorkdirDeps}/* /var/lib/authentik/
+          ln -svf ${cfg.authentikComponents.staticWorkdirDeps}/* /var/lib/authentik/
         '';
         serviceConfig = {
           Environment = [
@@ -123,7 +133,7 @@ in
           # TODO /run might be sufficient
           WorkingDirectory = "%S/authentik";
           DynamicUser = true;
-          ExecStart = "${pkgs.authentik.gopkgs}/bin/server";
+          ExecStart = "${cfg.authentikComponents.gopkgs}/bin/server";
         };
       };
     };

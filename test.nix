@@ -1,5 +1,4 @@
 { pkgs
-, overlays
 , nixosModules
 }:
 let
@@ -19,7 +18,6 @@ pkgs.nixosTest {
         "${pkgs.path}/nixos/tests/common/user-account.nix"
         "${pkgs.path}/nixos/tests/common/x11.nix"
       ];
-      nixpkgs.overlays = [ overlays.default ];
 
       services.authentik.enable = true;
 

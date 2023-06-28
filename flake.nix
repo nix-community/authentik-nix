@@ -3,6 +3,7 @@
 
   inputs = {
     flake-utils.url = "github:numtide/flake-utils";
+    flake-parts.url = "github:hercules-ci/flake-parts";
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-23.05";
     poetry2nix = {
       url = "github:nix-community/poetry2nix";
@@ -24,35 +25,41 @@
     };
   };
 
-  outputs = {
-      self,
-      nixpkgs,
-      flake-utils,
-      poetry2nix,
-      napalm,
-      authentik-src
-    }:
-    flake-utils.lib.eachDefaultSystem (system:
-      let
-        authentik-version = "2023.5.4"; # to pass to the drvs of some components
-        inherit (poetry2nix.legacyPackages.${system})
+  outputs = inputs@{
+    self,
+    nixpkgs,
+    flake-parts,
+    poetry2nix,
+    napalm,
+    authentik-src,
+    ...
+  }:
+
+  flake-parts.lib.mkFlake
+    { inherit inputs; }
+    ({ inputs, lib, withSystem, ... }:
+    let
+      authentik-version = "2023.5.4"; # to pass to the drvs of some components
+    in rec {
+      systems = [
+        "x86_64-linux"
+        "aarch64-linux" # not tested
+      ];
+      flake = {
+        nixosModules.default = { pkgs, ... }: {
+          imports = [ ./module.nix ];
+          services.authentik.authentikComponents = withSystem pkgs.stdenv.hostPlatform.system (
+            { config, ... }:
+            { inherit (config.packages) celery staticWorkdirDeps migrate pythonEnv frontend gopkgs docs; }
+          );
+        };
+      };
+      perSystem = { inputs', pkgs, system, ... }: let
+        inherit (inputs'.poetry2nix.legacyPackages)
           mkPoetryEnv
           defaultPoetryOverrides;
-        pkgs = nixpkgs.legacyPackages.${system};
-      in
-      rec {
-        nixosModules = {
-          default = import ./module.nix;
-        };
-        overlays = {
-          default = final: prev: {
-            authentik = {
-              inherit (packages) celery staticWorkdirDeps migrate pythonEnv frontend gopkgs docs;
-            };
-          };
-        };
+      in {
         packages = rec {
-          inherit authentik-src;
           docs = napalm.legacyPackages.${system}.buildPackage "${authentik-src}/website" {
             version = authentik-version; # 0.0.0 specified upstream
             NODE_ENV = "production";
@@ -163,11 +170,10 @@
               --prefix PYTHONPATH : ${staticWorkdirDeps}
           '';
         };
-
         checks.default = (import ./test.nix {
-          inherit pkgs overlays nixosModules;
+          inherit pkgs;
+          inherit (self) nixosModules;
         });
-
         devShells.default = pkgs.mkShell {
           packages = [
             # to generate a v2 lockfile from the v3 lockfile provided by upstream:
@@ -175,5 +181,6 @@
             pkgs.nodejs
           ];
         };
-      });
+      };
+    });
 }
