@@ -132,6 +132,7 @@
               "cmd/ldap"
               "cmd/server"
               "cmd/proxy"
+              "cmd/radius"
             ];
             vendorSha256 = "sha256-QOYKsYb6TpzHRI8vSI5zpRHr2aCeUN67KABTRE2Y2kg=";
             nativeBuildInputs = [ pkgs.makeWrapper ];
