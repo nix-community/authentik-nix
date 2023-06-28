@@ -20,6 +20,7 @@ let
 in
 {
   options.services = {
+    # authentik server
     authentik = {
       enable = mkEnableOption "authentik";
 
@@ -44,6 +45,11 @@ in
         type = types.bool;
         default = true;
       };
+    };
+
+    # LDAP oupost
+    authentik-ldap = {
+      enable = mkEnableOption "authentik LDAP outpost";
     };
   };
 
@@ -135,6 +141,32 @@ in
             DynamicUser = true;
             ExecStart = "${cfg.authentikComponents.gopkgs}/bin/server";
           };
+        };
+      };
+    }))
+
+    # LDAP outpost
+    (mkIf config.services.authentik-ldap.enable (let
+      cfg = config.services.authentik-ldap;
+    in
+    {
+      systemd.services.authentik-ldap = {
+        wantedBy = [ "multi-user.target" ];
+        after = [
+          "network-online.target"
+          "authentik.service"
+        ];
+        restartTriggers = [ config.environment.etc."authentik/config.yml".source ];
+        serviceConfig = {
+          Environment = [
+            "AUTHENTIK_HOST=https://localhost:9443"
+            "AUTHENTIK_INSECURE=true"
+          ];
+          RuntimeDirectory = "authentik-ldap";
+          UMask = "0027";
+          WorkingDirectory = "%t/authentik-ldap";
+          DynamicUser = true;
+          ExecStart = "${config.services.authentik.authentikComponents.gopkgs}/bin/ldap";
         };
       };
     }))
