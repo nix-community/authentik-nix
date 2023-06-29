@@ -158,10 +158,6 @@ in
         ];
         restartTriggers = [ config.environment.etc."authentik/config.yml".source ];
         serviceConfig = {
-          Environment = [
-            "AUTHENTIK_HOST=https://localhost:9443"
-            "AUTHENTIK_INSECURE=true"
-          ];
           RuntimeDirectory = "authentik-ldap";
           UMask = "0027";
           WorkingDirectory = "%t/authentik-ldap";
