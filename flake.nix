@@ -164,6 +164,10 @@
             cp ${authentik-src}/lifecycle/migrate.py $out/bin/migrate.py
             chmod +w $out/bin/migrate.py
             patchShebangs $out/bin/migrate.py
+            substituteInPlace $out/bin/migrate.py \
+              --replace \
+              'migration in Path(__file__).parent.absolute().glob("system_migrations/*.py")' \
+              'migration in Path("${staticWorkdirDeps}/lifecycle").glob("system_migrations/*.py")'
             wrapProgram $out/bin/migrate.py \
               --prefix PATH : ${pythonEnv}/bin \
               --prefix PYTHONPATH : ${staticWorkdirDeps}
