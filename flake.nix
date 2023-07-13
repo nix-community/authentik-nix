@@ -141,7 +141,7 @@
               "cmd/proxy"
               "cmd/radius"
             ];
-            vendorSha256 = "sha256-QOYKsYb6TpzHRI8vSI5zpRHr2aCeUN67KABTRE2Y2kg=";
+            vendorSha256 = "sha256-HYj5m4yFqqaxUY3YpLePzjdXnQlTIgk9h9glVeuCoLI=";
             nativeBuildInputs = [ pkgs.makeWrapper ];
             postInstall = ''
               wrapProgram $out/bin/server --prefix PATH : ${pythonEnv}/bin
