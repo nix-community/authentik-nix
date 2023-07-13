@@ -61,7 +61,7 @@
       in {
         packages = rec {
           docs = napalm.legacyPackages.${system}.buildPackage "${authentik-src}/website" {
-            version = authentik-version; # 0.0.0 specified upstream
+            version = authentik-version; # 0.0.0 specified upstream in package.json
             NODE_ENV = "production";
             nodejs = pkgs.nodejs_20;
             npmCommands = [
@@ -75,17 +75,24 @@
             '';
           };
           frontend = napalm.legacyPackages.${system}.buildPackage "${authentik-src}/web" {
-            version = authentik-version; # 0.0.0 specified upstream
-            packageLock = ./web-package-lock.json; # needs to be lock file version 2 for napalm, upstream uses v3
+            version = authentik-version; # 0.0.0 specified upstream in package.json
+            packageLock = let
+              # https://github.com/goauthentik/authentik/issues/6180
+              srcWithFullyResolvedLockfile = pkgs.applyPatches {
+                name = "authentik-src-with-patched-package-lock";
+                src = authentik-src;
+                patches = [
+                  ./web-package-lock.json.patch
+                ];
+              };
+            in "${srcWithFullyResolvedLockfile}/web/package-lock.json";
             NODE_ENV = "production";
             nodejs = pkgs.nodejs_20;
             preBuild = ''
               ln -sv ${docs} ../website
             '';
             npmCommands = [
-              "npm install --include=dev"
-              "sed -i'' -e 's,/usr/bin/env node,/bin/node,' node_modules/@lingui/cli/dist/lingui.js"
-              "patchShebangs node_modules/@lingui/cli/dist/lingui.js"
+              "npm install --include=dev --nodedir=${pkgs.nodejs_20}/include/node --loglevel verbose --ignore-scripts"
               "npm run build"
             ];
             installPhase = ''
