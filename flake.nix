@@ -40,7 +40,7 @@
     ({ inputs, lib, withSystem, ... }:
     let
       authentik-version = "2023.6.1"; # to pass to the drvs of some components
-    in rec {
+    in {
       systems = [
         "x86_64-linux"
         "aarch64-linux" # not tested
