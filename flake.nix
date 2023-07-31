@@ -108,7 +108,7 @@
           };
           # server + outposts
           gopkgs = pkgs.buildGo120Module {
-            pname = "authentik-gopgks";
+            pname = "authentik-gopkgs";
             version = authentik-version;
             prePatch = ''
               sed -i"" -e 's,./web/dist/,${frontend}/dist/,' web/static.go
