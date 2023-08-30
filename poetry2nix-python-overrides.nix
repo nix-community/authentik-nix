@@ -50,6 +50,29 @@ pkgs:
           final.setuptools-scm
         ];
       });
+      psycopg-c = prev.psycopg-c.overrideAttrs (oA: {
+        nativeBuildInputs = oA.nativeBuildInputs ++ [
+          final.setuptools
+          final.tomli
+          final.cython_3
+          pkgs.postgresql
+        ];
+      });
+      psycopg = prev.psycopg.overrideAttrs (oA: {
+        propagatedBuildInputs = oA.propagatedBuildInputs ++ [
+          final.psycopg-c
+        ];
+        pythonImportsCheck = [
+          "psycopg"
+          "psycopg_c"
+        ];
+      });
+      twisted = prev.twisted.overrideAttrs (oA: {
+        buildInputs = [
+          final.hatchling
+          final.hatch-fancy-pypi-readme
+        ];
+      });
     }
   )
 ]

@@ -20,7 +20,7 @@
       };
     };
     authentik-src = { # change version string in outputs as well when updating
-      url = "github:goauthentik/authentik/version/2023.6.2";
+      url = "github:goauthentik/authentik/version/2023.8.1";
       flake = false;
     };
   };
@@ -39,7 +39,7 @@
     { inherit inputs; }
     ({ inputs, lib, withSystem, ... }:
     let
-      authentik-version = "2023.6.2"; # to pass to the drvs of some components
+      authentik-version = "2023.8.1"; # to pass to the drvs of some components
     in {
       systems = [
         "x86_64-linux"
@@ -77,12 +77,27 @@
           frontend = napalm.legacyPackages.${system}.buildPackage "${authentik-src}/web" {
             version = authentik-version; # 0.0.0 specified upstream in package.json
             packageLock = let
-              # https://github.com/goauthentik/authentik/issues/6180
+              fix-napalm-registry-500-response = pkgs.writeText "lockfile.patch" ''
+                diff --git a/web/package-lock.json b/web/package-lock.json
+                index 028accd89..6c3590120 100644
+                --- a/web/package-lock.json
+                +++ b/web/package-lock.json
+                @@ -22959,8 +22959,7 @@
+                                 "url": "https://github.com/chalk/wrap-ansi?sponsor=1"
+                             }
+                         },
+                -        "node_modules/wrap-ansi-cjs": {
+                -            "name": "wrap-ansi",
+                +        "node_modules/wrap-ansi-cjs/node_modules/wrap-ansi": {
+                             "version": "7.0.0",
+                             "resolved": "https://registry.npmjs.org/wrap-ansi/-/wrap-ansi-7.0.0.tgz",
+                             "integrity": "sha512-YVGIj2kamLSTxw6NsZjoBxfSwsn0ycdesmc4p+Q21c5zPuZ1pl+NfxVdxPtdHvmNVOQ6XSYG4AUtyt/Fi7D16Q==",
+              '';
               srcWithFullyResolvedLockfile = pkgs.applyPatches {
                 name = "authentik-src-with-patched-package-lock";
                 src = authentik-src;
                 patches = [
-                  ./web-package-lock.json.patch
+                  fix-napalm-registry-500-response
                 ];
               };
             in "${srcWithFullyResolvedLockfile}/web/package-lock.json";
@@ -120,6 +135,7 @@
               filter = (path: _:
                 (builtins.any (x: x) (
                   (map (infix: pkgs.lib.hasInfix infix path) [
+                    "/authentik"
                     "/cmd"
                     "/internal"
                   ])
@@ -141,7 +157,7 @@
               "cmd/proxy"
               "cmd/radius"
             ];
-            vendorSha256 = "sha256-HYj5m4yFqqaxUY3YpLePzjdXnQlTIgk9h9glVeuCoLI=";
+            vendorSha256 = "sha256-womCCrXBoG3xhiqe0NnqNVuf+ecIPHVaCRbzNcsHs4o=";
             nativeBuildInputs = [ pkgs.makeWrapper ];
             postInstall = ''
               wrapProgram $out/bin/server --prefix PATH : ${pythonEnv}/bin
