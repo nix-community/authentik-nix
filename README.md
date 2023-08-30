@@ -15,15 +15,13 @@ Please note that this project is not directly affiliated with the official [auth
 ## Overview
 
 * [flake.nix](./flake.nix)
-  This flake provides packages (server, worker, outposts, ...) as outputs directly and via the overlay output, a NixOS module and a simple VM integration test for the module.
+  This flake provides packages (server, worker, outposts, ...) as outputs, a NixOS module and a simple VM integration test for the module.
 * [module.nix](./module.nix)
   The NixOS module configures authentik services, redis and (by default) a local postgres instance. The upstream default authentik configuration can be partially overridden by setting desired parameters under `services.authentik.settings`.
 * [poetry2nix-python-overrides.nix](./poetry2nix-python-overrides.nix)
   contains overrides and fixes for building the python env
 * [test.nix](./test.nix)
   A minimal NixOS VM test. Confirms that the services configured by the module start and manually goes through the initial setup flow. Two screenshots are taken during test execution to confirm that the frontend is rendered correctly.
-* [web-package-lock.json](./web-package-lock.json)
-  Version 2 package-lock.json of the lockfile located upstream under `web/package-lock.json`. This is currently a requirement for napalm2nix (see https://github.com/nix-community/napalm/issues/55#issuecomment-1466354584 )
 
 ## Usage
 
