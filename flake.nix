@@ -20,7 +20,7 @@
       };
     };
     authentik-src = { # change version string in outputs as well when updating
-      url = "github:goauthentik/authentik/version/2023.8.1";
+      url = "github:goauthentik/authentik/version/2023.8.2";
       flake = false;
     };
   };
@@ -39,7 +39,7 @@
     { inherit inputs; }
     ({ inputs, lib, withSystem, ... }:
     let
-      authentik-version = "2023.8.1"; # to pass to the drvs of some components
+      authentik-version = "2023.8.2"; # to pass to the drvs of some components
     in {
       systems = [
         "x86_64-linux"
@@ -157,7 +157,7 @@
               "cmd/proxy"
               "cmd/radius"
             ];
-            vendorSha256 = "sha256-womCCrXBoG3xhiqe0NnqNVuf+ecIPHVaCRbzNcsHs4o=";
+            vendorSha256 = "sha256-F3JzzL6Gg9H4qdmp4MbQFupccATYIUIFL05is6xzoZY=";
             nativeBuildInputs = [ pkgs.makeWrapper ];
             postInstall = ''
               wrapProgram $out/bin/server --prefix PATH : ${pythonEnv}/bin
