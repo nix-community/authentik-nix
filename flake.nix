@@ -76,31 +76,6 @@
           };
           frontend = napalm.legacyPackages.${system}.buildPackage "${authentik-src}/web" {
             version = authentik-version; # 0.0.0 specified upstream in package.json
-            packageLock = let
-              fix-napalm-registry-500-response = pkgs.writeText "lockfile.patch" ''
-                diff --git a/web/package-lock.json b/web/package-lock.json
-                index 028accd89..6c3590120 100644
-                --- a/web/package-lock.json
-                +++ b/web/package-lock.json
-                @@ -22959,8 +22959,7 @@
-                                 "url": "https://github.com/chalk/wrap-ansi?sponsor=1"
-                             }
-                         },
-                -        "node_modules/wrap-ansi-cjs": {
-                -            "name": "wrap-ansi",
-                +        "node_modules/wrap-ansi-cjs/node_modules/wrap-ansi": {
-                             "version": "7.0.0",
-                             "resolved": "https://registry.npmjs.org/wrap-ansi/-/wrap-ansi-7.0.0.tgz",
-                             "integrity": "sha512-YVGIj2kamLSTxw6NsZjoBxfSwsn0ycdesmc4p+Q21c5zPuZ1pl+NfxVdxPtdHvmNVOQ6XSYG4AUtyt/Fi7D16Q==",
-              '';
-              srcWithFullyResolvedLockfile = pkgs.applyPatches {
-                name = "authentik-src-with-patched-package-lock";
-                src = authentik-src;
-                patches = [
-                  fix-napalm-registry-500-response
-                ];
-              };
-            in "${srcWithFullyResolvedLockfile}/web/package-lock.json";
             NODE_ENV = "production";
             nodejs = pkgs.nodejs_20;
             preBuild = ''
