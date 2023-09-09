@@ -4,6 +4,10 @@
   inputs = {
     flake-utils.url = "github:numtide/flake-utils";
     flake-parts.url = "github:hercules-ci/flake-parts";
+    flake-compat = {
+      url = "github:edolstra/flake-compat";
+      flake = false;
+    };
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-23.05";
     poetry2nix = {
       url = "github:nix-community/poetry2nix";
