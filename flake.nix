@@ -75,6 +75,7 @@
               "npm run build-docs-only"
             ];
             installPhase = ''
+              rm -r ../website/node_modules/.cache
               mv -v ../website $out
             '';
           };
