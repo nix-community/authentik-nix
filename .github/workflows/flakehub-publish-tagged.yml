@@ -9,6 +9,10 @@ on:
         description: "The existing tag to publish to FlakeHub"
         type: "string"
         required: true
+      version:
+        description: "The version to publish to FlakeHub"
+        type: "string"
+        required: true
 jobs:
   flakehub-publish:
     runs-on: "ubuntu-latest"
@@ -24,4 +28,4 @@ jobs:
         with:
           visibility: "unlisted"
           name: "mayflower/authentik-nix"
-          tag: "${{ inputs.tag }}"
+          tag: "${{ inputs.version }}"
