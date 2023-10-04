@@ -197,10 +197,13 @@
             '';
           };
         };
-        checks.default = (import ./test.nix {
-          inherit pkgs authentik-version;
-          inherit (self) nixosModules;
-        });
+        checks = {
+          default = self.checks.${system}.vmtest;
+          vmtest = (import ./test.nix {
+            inherit pkgs authentik-version;
+            inherit (self) nixosModules;
+          });
+        };
         devShells.default = pkgs.mkShell {
           packages = [
             # to generate a v2 lockfile from the v3 lockfile provided by upstream:

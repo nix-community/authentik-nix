@@ -25,6 +25,10 @@ pkgs.nixosTest {
       services.authentik = {
         enable = true;
         environmentFile = authentik-env;
+        nginx = {
+          enable = true;
+          host = "localhost";
+        };
       };
 
       services.xserver.enable = true;
@@ -53,7 +57,7 @@ pkgs.nixosTest {
     with subtest("Frontend renders"):
         machine.succeed("su - alice -c 'firefox http://localhost:9000/if/flow/initial-setup' >&2 &")
         machine.wait_for_text("Welcome to authentik")
-        machine.screenshot("initial-setup_1")
+        machine.screenshot("1_rendered_frontend")
 
     with subtest("admin account setup works"):
         machine.send_key("tab")
@@ -66,15 +70,20 @@ pkgs.nixosTest {
         machine.send_key("ret")
         machine.wait_for_text("My applications")
         machine.send_key("esc")
-        machine.screenshot("initial-setup_2")
+        machine.screenshot("2_initial_setup_successful")
 
     with subtest("admin settings render and version as expected"):
         machine.succeed("su - alice -c 'firefox http://localhost:9000/if/admin' >&2 &")
         machine.wait_for_text("General system status")
-        machine.screenshot("initial-setup_3")
+        machine.screenshot("3_rendered_admin_interface")
         machine.succeed("su - alice -c 'xdotool click 1' >&2")
         machine.succeed("su - alice -c 'xdotool key --delay 100 Page_Down Page_Down' >&2")
         machine.wait_for_text("${authentik-version}")
-        machine.screenshot("initial-setup_4")
+        machine.screenshot("4_correct_version_in_admin_interface")
+
+    with subtest("nginx proxies to authentik"):
+        machine.succeed("su - alice -c 'firefox http://localhost/' >&2 &")
+        machine.wait_for_text("authentik")
+        machine.screenshot("5_nginx_proxies_requests")
   '';
 }

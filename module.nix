@@ -7,6 +7,9 @@ let
   inherit (lib)
     types;
 
+  inherit (lib.attrsets)
+    recursiveUpdate;
+
   inherit (lib.modules)
     mkDefault
     mkIf
@@ -45,6 +48,19 @@ in
       createDatabase = mkOption {
         type = types.bool;
         default = true;
+      };
+
+      nginx = {
+        enable = mkEnableOption "basic nginx configuration";
+        enableACME = mkEnableOption "Let's Encrypt and certificate discovery";
+        host = mkOption {
+          type = types.str;
+          example = "auth.example.com";
+          description = mdDoc ''
+            Specify the name for the server in {option}`services.nginx.virtualHosts` and
+            for the associated Let's Encrypt certificate.
+          '';
+        };
       };
 
       environmentFile = mkOption {
@@ -106,6 +122,7 @@ in
             name = mkDefault "authentik";
             host = mkDefault "";
           };
+          cert_discovery_dir = mkIf (cfg.nginx.enable && cfg.nginx.enableACME) "env://CREDENTIALS_DIRECTORY";
         };
         redis.servers.authentik = {
           enable = true;
@@ -154,6 +171,10 @@ in
             # TODO maybe make this configurable
             ExecStart = "${cfg.authentikComponents.celery}/bin/celery -A authentik.root.celery worker -Ofair --max-tasks-per-child=1 --autoscale 3,1 -E -B -s /tmp/celerybeat-schedule -Q authentik,authentik_scheduled,authentik_events";
             EnvironmentFile = mkIf (cfg.environmentFile != null) [ cfg.environmentFile ];
+            LoadCredential = mkIf (cfg.nginx.enable && cfg.nginx.enableACME) [
+              "${cfg.nginx.host}.pem:${config.security.acme.certs.${cfg.nginx.host}.directory}/fullchain.pem"
+              "${cfg.nginx.host}.key:${config.security.acme.certs.${cfg.nginx.host}.directory}/key.pem"
+            ];
           };
         };
         authentik = {
@@ -181,6 +202,20 @@ in
             DynamicUser = true;
             ExecStart = "${cfg.authentikComponents.gopkgs}/bin/server";
             EnvironmentFile = mkIf (cfg.environmentFile != null) [ cfg.environmentFile ];
+          };
+        };
+      };
+
+      services.nginx = mkIf cfg.nginx.enable {
+        enable = true;
+        recommendedTlsSettings = true;
+        recommendedProxySettings = true;
+        virtualHosts.${cfg.nginx.host} = {
+          inherit (cfg.nginx) enableACME;
+          forceSSL = cfg.nginx.enableACME;
+          locations."/" = {
+            proxyWebsockets = true;
+            proxyPass = "https://localhost:9443";
           };
         };
       };
