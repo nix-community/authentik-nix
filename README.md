@@ -50,6 +50,19 @@ Example configuration:
 }
 ```
 
+**EnvironmentFile for secrets**
+
+The `environmentFile` option references a systemd [EnvironmentFile](https://www.freedesktop.org/software/systemd/man/systemd.exec.html#EnvironmentFile=), that needs to be placed on the same host as authentik and should only be accessible to root. Secrets can be specified in this environment file without causing them to be placed in the world-readable /nix/store. Note that `pkgs.writeText` and similar tooling also causes secrets to be placed in the /nix/store.
+
+After generating a secret key for authentik, for example using `openssl rand -base64 32` the file's contents should look like this:
+
+```
+AUTHENTIK_SECRET_KEY=<generated secret key>
+AUTHENTIK_EMAIL__PASSWORD=<smtp password>
+```
+
+Better alternatives to managing the environment file manually on the authentik host might be https://github.com/Mic92/sops-nix or https://github.com/ryantm/agenix , depending on your use case.
+
 ### With flakes
 
 Add authentik-nix to your flake, import the module and configure it. Relevant sections of the flake:
