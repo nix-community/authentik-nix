@@ -13,6 +13,7 @@ let
     mkMerge;
 
   inherit (lib.options)
+    mdDoc
     mkEnableOption
     mkOption;
 
@@ -45,11 +46,48 @@ in
         type = types.bool;
         default = true;
       };
+
+      environmentFile = mkOption {
+        type = types.nullOr types.path;
+        default = null;
+        example = "/run/secrets/authentik/authentik-env";
+        description = mdDoc ''
+          Environment file as defined in {manpage}`systemd.exec(5)`.
+
+          Secrets may be passed to the service without adding them to the world-readable
+          /nix/store, by specifying the desied secrets as environment variables according
+          to the authentic documentation.
+
+          ```
+            # example content
+            AUTHENTIK_SECRET_KEY=<secret key>
+            AUTHENTIK_EMAIL__PASSWORD=<smtp password>
+          ```
+        '';
+      };
     };
 
     # LDAP oupost
     authentik-ldap = {
       enable = mkEnableOption "authentik LDAP outpost";
+
+      environmentFile = mkOption {
+        type = types.nullOr types.path;
+        default = null;
+        example = "/run/secrets/authentik-ldap/authentik-ldap-env";
+        description = mdDoc ''
+          Environment file as defined in {manpage}`systemd.exec(5)`.
+
+          Secrets may be passed to the service without adding them to the world-readable
+          /nix/store, by specifying the desied secrets as environment variables according
+          to the authentic documentation.
+
+          ```
+            # example content
+            AUTHENTIK_TOKEN=<token from authentik for this outpost>
+          ```
+        '';
+      };
     };
   };
 
@@ -101,6 +139,7 @@ in
             DynamicUser = true;
             User = "authentik";
             ExecStart = "${cfg.authentikComponents.migrate}/bin/migrate.py";
+            EnvironmentFile = mkIf (cfg.environmentFile != null) [ cfg.environmentFile ];
           };
         };
         authentik-worker = {
@@ -114,6 +153,7 @@ in
             User = "authentik";
             # TODO maybe make this configurable
             ExecStart = "${cfg.authentikComponents.celery}/bin/celery -A authentik.root.celery worker -Ofair --max-tasks-per-child=1 --autoscale 3,1 -E -B -s /tmp/celerybeat-schedule -Q authentik,authentik_scheduled,authentik_events";
+            EnvironmentFile = mkIf (cfg.environmentFile != null) [ cfg.environmentFile ];
           };
         };
         authentik = {
@@ -140,6 +180,7 @@ in
             WorkingDirectory = "%S/authentik";
             DynamicUser = true;
             ExecStart = "${cfg.authentikComponents.gopkgs}/bin/server";
+            EnvironmentFile = mkIf (cfg.environmentFile != null) [ cfg.environmentFile ];
           };
         };
       };
@@ -163,6 +204,7 @@ in
           WorkingDirectory = "%t/authentik-ldap";
           DynamicUser = true;
           ExecStart = "${config.services.authentik.authentikComponents.gopkgs}/bin/ldap";
+          EnvironmentFile = mkIf (cfg.environmentFile != null) [ cfg.environmentFile ];
         };
       };
     }))

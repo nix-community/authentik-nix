@@ -2,8 +2,10 @@
 , nixosModules
 }:
 let
-  # use a root-owned EnvironmentFile in production instead (systemd.services.<name>.serviceConfig.EnvironmentFile)
-  authentiksecret = "thissecretwillbeinthenixstore";
+  # use a root-owned EnvironmentFile in production instead (services.authentik.environmentFile)
+  authentik-env = pkgs.writeText "authentik-test-secret-env" ''
+    AUTHENTIK_SECRET_KEY=thissecretwillbeinthenixstore
+  '';
 in
 pkgs.nixosTest {
   name = "authentik";
@@ -19,17 +21,10 @@ pkgs.nixosTest {
         "${pkgs.path}/nixos/tests/common/x11.nix"
       ];
 
-      services.authentik.enable = true;
-
-      systemd.services.authentik-migrate.serviceConfig.Environment = [
-        "AUTHENTIK_SECRET_KEY=${authentiksecret}"
-      ];
-      systemd.services.authentik-worker.serviceConfig.Environment = [
-        "AUTHENTIK_SECRET_KEY=${authentiksecret}"
-      ];
-      systemd.services.authentik.serviceConfig.Environment = [
-        "AUTHENTIK_SECRET_KEY=${authentiksecret}"
-      ];
+      services.authentik = {
+        enable = true;
+        environmentFile = authentik-env;
+      };
 
       services.xserver.enable = true;
       test-support.displayManager.auto.user = "alice";
