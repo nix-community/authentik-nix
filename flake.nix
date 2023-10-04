@@ -198,7 +198,7 @@
           };
         };
         checks.default = (import ./test.nix {
-          inherit pkgs;
+          inherit pkgs authentik-version;
           inherit (self) nixosModules;
         });
         devShells.default = pkgs.mkShell {

@@ -1,4 +1,5 @@
 { pkgs
+, authentik-version
 , nixosModules
 }:
 let
@@ -66,5 +67,14 @@ pkgs.nixosTest {
         machine.wait_for_text("My applications")
         machine.send_key("esc")
         machine.screenshot("initial-setup_2")
+
+    with subtest("admin settings render and version as expected"):
+        machine.succeed("su - alice -c 'firefox http://localhost:9000/if/admin' >&2 &")
+        machine.wait_for_text("General system status")
+        machine.screenshot("initial-setup_3")
+        machine.succeed("su - alice -c 'xdotool click 1' >&2")
+        machine.succeed("su - alice -c 'xdotool key --delay 100 Page_Down Page_Down' >&2")
+        machine.wait_for_text("${authentik-version}")
+        machine.screenshot("initial-setup_4")
   '';
 }
