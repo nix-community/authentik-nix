@@ -25,11 +25,108 @@ Please note that this project is not directly affiliated with the official [auth
 
 ## Usage
 
-* WiP
+Example configuration:
 
-## Updating
+```nix
+{
+  services.authentik = {
+    enable = true;
+    # The environmentFile needs to be on the target host!
+    # Best use something like sops-nix or agenix to manage it
+    environmentFile = "/run/secrets/authentik/authentik-env";
+    settings = {
+      email = {
+        host = "smtp.example.com";
+        port = 587;
+        username = "authentik@example.com";
+        use_tls = true;
+        use_ssl = false;
+        from = "authentik@example.com";
+      };
+      disable_startup_analytics = true;
+      avatars = "initials";
+    };
+  };
+}
+```
 
-* WiP
+### With flakes
+
+Add authentik-nix to your flake, import the module and configure it. Relevant sections of the flake:
+
+```nix
+# flake.nix
+{
+  inputs.authentik-nix = {
+    url = "github:mayflower/authentik-nix";
+
+    ## optional overrides. Note that using a different version of nixpkgs can cause issues, especially with python dependencies
+    # inputs.nixpkgs.follows = "nixpkgs"
+    # inputs.flake-parts.follows = "flake-parts"
+  };
+
+  outputs = inputs@{ ... }: {
+
+    ## regular NixOS example
+    #
+    # nixosConfigurations = {
+    #   authentik-host = inputs.nixpkgs.lib.nixosSystem {
+    #     system = "x86_64-linux";
+    #     modules = [
+    #       inputs.authentik-nix.nixosModules.default
+    #       {
+    #         services.authentik = {
+    #           # ... further configuration; see example configuration above
+    #         };
+    #       }
+    #     ];
+    #   };
+    # };
+
+    ## Colmena example
+    #
+    # colmena = {
+    #   meta.specialArgs.inputs = { inherit (inputs) authentik-nix; };
+    #
+    #   authentik-host = { inputs, ... }: {
+    #     imports = [ inputs.authentik-nix.nixosModules.default ];
+    #
+    #     services.authentik = {
+    #       # ... further configuration; see example configuration above
+    #     };
+    #   };
+    # };
+  };
+}
+```
+
+## Nginx + Let's Encrypt
+
+Example configuration:
+
+```nix
+{
+  services.authentik = {
+    # other authentik options as in the example configuration at the top
+    nginx = {
+      enable = true;
+      enableACME = true;
+      host = "auth.example.com";
+    };
+  };
+}
+```
+
+The configuration above configures authentik to auto-discover the Let's Encrypt certificate and key.
+Initial auto-discovery might take a while because the authentik certificate discovery task runs once per hour.
+
+## Testing
+
+To run the tests execute the following:
+
+```
+nix flake check --print-build-logs
+```
 
 ## License
 This project is released under the terms of the MIT License. See [LICENSE](./LICENSE).
