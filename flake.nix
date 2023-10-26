@@ -8,7 +8,7 @@
       url = "github:edolstra/flake-compat";
       flake = false;
     };
-    nixpkgs.url = "github:NixOS/nixpkgs/nixos-23.05";
+    nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
     poetry2nix = {
       url = "github:nix-community/poetry2nix";
       inputs = {
@@ -24,7 +24,7 @@
       };
     };
     authentik-src = { # change version string in outputs as well when updating
-      url = "github:goauthentik/authentik/version/2023.8.3";
+      url = "github:goauthentik/authentik/version/2023.10.0";
       flake = false;
     };
   };
@@ -43,7 +43,7 @@
     { inherit inputs; }
     ({ inputs, lib, withSystem, ... }:
     let
-      authentik-version = "2023.8.3"; # to pass to the drvs of some components
+      authentik-version = "2023.10.0"; # to pass to the drvs of some components
     in {
       systems = [
         "x86_64-linux"
@@ -58,8 +58,8 @@
           );
         };
       };
-      perSystem = { inputs', pkgs, system, ... }: let
-        inherit (inputs'.poetry2nix.legacyPackages)
+      perSystem = { pkgs, system, ... }: let
+        inherit (import inputs.poetry2nix { inherit pkgs; })
           mkPoetryEnv
           defaultPoetryOverrides;
       in {
@@ -79,15 +79,15 @@
               mv -v ../website $out
             '';
           };
-          frontend = napalm.legacyPackages.${system}.buildPackage "${authentik-src}/web" {
+          frontend = napalm.legacyPackages.${system}.buildPackage "${authentik-src}/web" rec {
             version = authentik-version; # 0.0.0 specified upstream in package.json
             NODE_ENV = "production";
-            nodejs = pkgs.nodejs_20;
+            nodejs = pkgs.nodejs_21;
             preBuild = ''
               ln -sv ${docs} ../website
             '';
             npmCommands = [
-              "npm install --include=dev --nodedir=${pkgs.nodejs_20}/include/node --loglevel verbose --ignore-scripts"
+              "npm install --include=dev --nodedir=${nodejs}/include/node --loglevel verbose --ignore-scripts"
               "npm run build"
             ];
             installPhase = ''
@@ -100,9 +100,16 @@
             projectDir = authentik-src;
             python = pkgs.python311;
             overrides = [ defaultPoetryOverrides ] ++ (import ./poetry2nix-python-overrides.nix pkgs);
+            # workaround to remove dev-dependencies for the current combination of legacy pyproject.toml format
+            # used by authentik and poetry2nix's behavior
+            groups = [];
+            checkGroups = [];
+            pyproject = pkgs.runCommandLocal "patched-pyproject.toml" {} ''
+              sed -e 's,tool.poetry.dev-dependencies,tool.poetry.group.dev.dependencies,' ${authentik-src}/pyproject.toml > $out
+            '';
           };
           # server + outposts
-          gopkgs = pkgs.buildGo120Module {
+          gopkgs = pkgs.buildGo121Module {
             pname = "authentik-gopkgs";
             version = authentik-version;
             prePatch = ''
@@ -137,7 +144,7 @@
               "cmd/proxy"
               "cmd/radius"
             ];
-            vendorSha256 = "sha256-F3JzzL6Gg9H4qdmp4MbQFupccATYIUIFL05is6xzoZY=";
+            vendorSha256 = "sha256-JQRGlQ7iYrB5nKli3hoIAJHG9UeGqVD+dMupMUDZ2Zo=";
             nativeBuildInputs = [ pkgs.makeWrapper ];
             postInstall = ''
               wrapProgram $out/bin/server --prefix PATH : ${pythonEnv}/bin
@@ -162,8 +169,8 @@
             patchShebangs $out/bin/migrate.py
             substituteInPlace $out/bin/migrate.py \
               --replace \
-              'migration in Path(__file__).parent.absolute().glob("system_migrations/*.py")' \
-              'migration in Path("${staticWorkdirDeps}/lifecycle").glob("system_migrations/*.py")'
+              'migration_path in Path(__file__).parent.absolute().glob("system_migrations/*.py")' \
+              'migration_path in Path("${staticWorkdirDeps}/lifecycle").glob("system_migrations/*.py")'
             wrapProgram $out/bin/migrate.py \
               --prefix PATH : ${pythonEnv}/bin \
               --prefix PYTHONPATH : ${staticWorkdirDeps}

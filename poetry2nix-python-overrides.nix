@@ -73,6 +73,11 @@ pkgs:
           final.hatch-fancy-pypi-readme
         ];
       });
+      django-filter = prev.django-filter.overrideAttrs (oA: {
+        nativeBuildInputs = oA.nativeBuildInputs ++ [
+          final.flit-core
+        ];
+      });
     }
   )
 ]
