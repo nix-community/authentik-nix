@@ -9,7 +9,7 @@
       flake = false;
     };
     # nixos-unstable required for go 1.21 until 23.11 release
-    nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
+    nixpkgs.url = "github:NixOS/nixpkgs/nixos-23.11";
     # explicitly required for go 1.18 (terraform-provider)
     nixpkgs-23-05.url = "github:NixOS/nixpkgs/nixos-23.05";
     poetry2nix = {
