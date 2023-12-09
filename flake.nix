@@ -62,134 +62,40 @@
           ));
         };
       };
-      perSystem = { pkgs, system, ... }: let
+      perSystem = { pkgs, system, self', ... }: let
         inherit (import inputs.poetry2nix { inherit pkgs; })
           mkPoetryEnv
           defaultPoetryOverrides;
+        authentikComponents = {
+          inherit (self'.packages) celery staticWorkdirDeps migrate pythonEnv frontend gopkgs docs; };
+        authentikPoetryOverrides = import ./poetry2nix-python-overrides.nix pkgs;
       in {
-        packages = rec {
-          docs = napalm.legacyPackages.${system}.buildPackage "${authentik-src}/website" {
-            version = authentik-version; # 0.0.0 specified upstream in package.json
-            NODE_ENV = "production";
-            nodejs = pkgs.nodejs_20;
-            npmCommands = [
-              "cp -v ${authentik-src}/SECURITY.md ../SECURITY.md"
-              "cp -vr ${authentik-src}/blueprints ../blueprints"
-              "npm install --include=dev"
-              "npm run build-docs-only"
-            ];
-            installPhase = ''
-              rm -r ../website/node_modules/.cache
-              mv -v ../website $out
-            '';
+        packages = {
+          docs = pkgs.callPackage components/docs.nix {
+            buildNapalmPackage = napalm.legacyPackages.${system}.buildPackage;
+            inherit authentik-src authentik-version;
           };
-          frontend = napalm.legacyPackages.${system}.buildPackage "${authentik-src}/web" rec {
-            version = authentik-version; # 0.0.0 specified upstream in package.json
-            NODE_ENV = "production";
-            nodejs = pkgs.nodejs_21;
-            preBuild = ''
-              ln -sv ${docs} ../website
-            '';
-            npmCommands = [
-              "npm install --include=dev --nodedir=${nodejs}/include/node --loglevel verbose --ignore-scripts"
-              "npm run build"
-            ];
-            installPhase = ''
-              mkdir $out
-              mv dist $out/dist
-              cp -r authentik icons $out
-            '';
+          frontend = pkgs.callPackage components/frontend.nix {
+            buildNapalmPackage = napalm.legacyPackages.${system}.buildPackage;
+            inherit authentik-src authentik-version authentikComponents;
           };
-          pythonEnv = mkPoetryEnv {
-            projectDir = authentik-src;
-            python = pkgs.python311;
-            overrides = [ defaultPoetryOverrides ] ++ (import ./poetry2nix-python-overrides.nix pkgs);
-            groups = [];
-            checkGroups = [];
-            # workaround to remove dev-dependencies for the current combination of legacy pyproject.toml format
-            # used by authentik and poetry2nix's behavior
-            pyproject = builtins.toFile "patched-pyproject.toml" (lib.replaceStrings
-              ["tool.poetry.dev-dependencies"]
-              ["tool.poetry.group.dev.dependencies"]
-              (builtins.readFile "${authentik-src}/pyproject.toml")
-            );
+          pythonEnv = pkgs.callPackage components/pythonEnv.nix {
+            inherit authentik-src mkPoetryEnv defaultPoetryOverrides authentikPoetryOverrides;
           };
           # server + outposts
-          gopkgs = pkgs.buildGo121Module {
-            pname = "authentik-gopkgs";
-            version = authentik-version;
-            prePatch = ''
-              sed -i"" -e 's,./web/dist/,${frontend}/dist/,' web/static.go
-              sed -i"" -e 's,./web/dist/,${frontend}/dist/,' internal/web/static.go
-              sed -i"" -e 's,./lifecycle/gunicorn.conf.py,${staticWorkdirDeps}/lifecycle/gunicorn.conf.py,' internal/gounicorn/gounicorn.go
-            '';
-            src = pkgs.lib.cleanSourceWith {
-              src = authentik-src;
-              filter = (path: _:
-                (builtins.any (x: x) (
-                  (map (infix: pkgs.lib.hasInfix infix path) [
-                    "/authentik"
-                    "/cmd"
-                    "/internal"
-                  ])
-                  ++
-                  (map (suffix: pkgs.lib.hasSuffix suffix path) [
-                    "/web"
-                    "/web/static.go"
-                    "/web/robots.txt"
-                    "/web/security.txt"
-                    "go.mod"
-                    "go.sum"
-                  ])
-                ))
-              );
-            };
-            subPackages = [
-              "cmd/ldap"
-              "cmd/server"
-              "cmd/proxy"
-              "cmd/radius"
-            ];
-            vendorSha256 = "sha256-8F9emmQmbe7R+xtGrjV5ht0adGasU6WAvLa8Wxr+j8M=";
-            nativeBuildInputs = [ pkgs.makeWrapper ];
-            postInstall = ''
-              wrapProgram $out/bin/server --prefix PATH : ${pythonEnv}/bin
-              wrapProgram $out/bin/server --prefix PYTHONPATH : ${staticWorkdirDeps}
-            '';
+          gopkgs = pkgs.callPackage components/gopkgs.nix {
+            inherit authentik-src authentik-version authentikComponents;
           };
-          staticWorkdirDeps = pkgs.linkFarm "authentik-static-workdir-deps" [
-            { name = "authentik"; path = "${authentik-src}/authentik"; }
-            { name = "locale"; path = "${authentik-src}/locale"; }
-            { name = "blueprints"; path = "${authentik-src}/blueprints"; }
-            { name = "internal"; path = "${authentik-src}/internal"; }
-            { name = "lifecycle"; path = "${authentik-src}/lifecycle"; }
-            { name = "schemas"; path = "${authentik-src}/schemas"; }
-            { name = "web"; path = frontend; }
-          ];
-          migrate = pkgs.runCommandLocal "authentik-migrate.py" {
-            nativeBuildInputs = [ pkgs.makeWrapper ];
-          } ''
-            mkdir -vp $out/bin
-            cp ${authentik-src}/lifecycle/migrate.py $out/bin/migrate.py
-            chmod +w $out/bin/migrate.py
-            patchShebangs $out/bin/migrate.py
-            substituteInPlace $out/bin/migrate.py \
-              --replace \
-              'migration_path in Path(__file__).parent.absolute().glob("system_migrations/*.py")' \
-              'migration_path in Path("${staticWorkdirDeps}/lifecycle").glob("system_migrations/*.py")'
-            wrapProgram $out/bin/migrate.py \
-              --prefix PATH : ${pythonEnv}/bin \
-              --prefix PYTHONPATH : ${staticWorkdirDeps}
-          '';
+          staticWorkdirDeps = pkgs.callPackage components/staticWorkdirDeps.nix {
+            inherit authentik-src authentikComponents;
+          };
+          migrate = pkgs.callPackage components/migrate.nix {
+            inherit authentik-src authentikComponents;
+          };
           # worker
-          celery = pkgs.runCommandLocal "authentik-celery" {
-            nativeBuildInputs = [ pkgs.makeWrapper ];
-          } ''
-            mkdir -vp $out/bin
-            ln -sv ${pythonEnv}/bin/celery $out/bin/celery
-            wrapProgram $out/bin/celery \
-              --prefix PYTHONPATH : ${staticWorkdirDeps}
-          '';
+          celery = pkgs.callPackage components/celery.nix {
+            inherit authentikComponents;
+          };
           # terraform provider
           terraform-provider-authentik = inputs.nixpkgs-23-05.legacyPackages.${system}.buildGo118Module rec {
             pname = "terraform-provider-authentik";
