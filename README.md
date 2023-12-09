@@ -119,12 +119,14 @@ Example configuration:
 
 ```nix
 {
-  services.authentik = {
-    # other authentik options as in the example configuration at the top
-    nginx = {
-      enable = true;
-      enableACME = true;
-      host = "auth.example.com";
+  services = {
+    authentik = {
+      # other authentik options as in the example configuration at the top
+      nginx = {
+        enable = true;
+        host = "auth.example.com";
+        vhost.enableACME = true;
+      };
     };
   };
 }

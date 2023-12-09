@@ -1,6 +1,7 @@
 { config
 , lib
 , pkgs
+, modulesPath
 , ...
 }:
 let
@@ -20,6 +21,10 @@ let
   settingsFormat = pkgs.formats.yaml {};
 in
 {
+  imports = [
+    (lib.mkRenamedOptionModule [ "services" "authentik" "nginx" "enableACME" ] [ "services" "authentik" "nginx" "vhost" "enableACME" ])
+  ];
+  
   options.services = {
     # authentik server
     authentik = {
@@ -43,13 +48,28 @@ in
 
       nginx = {
         enable = mkEnableOption "basic nginx configuration";
-        enableACME = mkEnableOption "Let's Encrypt and certificate discovery";
         host = mkOption {
           type = types.str;
           example = "auth.example.com";
           description = mdDoc ''
             Specify the name for the server in {option}`services.nginx.virtualHosts` and
             for the associated Let's Encrypt certificate.
+          '';
+        };
+        vhost = mkOption {
+         type = types.nullOr (types.submodule
+          (import (modulesPath + "/services/web-servers/nginx/vhost-options.nix") {
+            inherit config lib;
+          }));
+        default = null;
+          example = lib.literalExpression ''
+            {
+              # To enable encryption and let let's encrypt take care of certificate
+              enableACME = true;
+            }
+          '';
+          description = lib.mdDoc ''
+            With this option, you can customize the nginx virtualHost settings.
           '';
         };
       };
@@ -113,7 +133,7 @@ in
             name = mkDefault "authentik";
             host = mkDefault "";
           };
-          cert_discovery_dir = mkIf (cfg.nginx.enable && cfg.nginx.enableACME) "env://CREDENTIALS_DIRECTORY";
+          cert_discovery_dir = mkIf (cfg.nginx.enable && (cfg.nginx.vhost.enableACME || cfg.nginx.vhost.useACMEHost != null)) "env://CREDENTIALS_DIRECTORY";
         };
         redis.servers.authentik = {
           enable = true;
@@ -162,10 +182,15 @@ in
             # TODO maybe make this configurable
             ExecStart = "${cfg.authentikComponents.celery}/bin/celery -A authentik.root.celery worker -Ofair --max-tasks-per-child=1 --autoscale 3,1 -E -B -s /tmp/celerybeat-schedule -Q authentik,authentik_scheduled,authentik_events";
             EnvironmentFile = mkIf (cfg.environmentFile != null) [ cfg.environmentFile ];
-            LoadCredential = mkIf (cfg.nginx.enable && cfg.nginx.enableACME) [
-              "${cfg.nginx.host}.pem:${config.security.acme.certs.${cfg.nginx.host}.directory}/fullchain.pem"
-              "${cfg.nginx.host}.key:${config.security.acme.certs.${cfg.nginx.host}.directory}/key.pem"
-            ];
+            LoadCredential = mkIf (cfg.nginx.enable && (cfg.nginx.vhost.enableACME || cfg.nginx.vhost.useACMEHost != null)) (
+              let 
+                name = if cfg.nginx.vhost.useACMEHost == null then cfg.nginx.host else cfg.nginx.vhost.useACMEHost;
+              in
+                [
+                  "${name}.pem:${config.security.acme.certs.${name}.directory}/fullchain.pem"
+                  "${name}.key:${config.security.acme.certs.${name}.directory}/key.pem"
+                ]
+            );
           };
         };
         authentik = {
@@ -199,11 +224,10 @@ in
 
       services.nginx = mkIf cfg.nginx.enable {
         enable = true;
-        recommendedTlsSettings = true;
+        recommendedTlsSettings = lib.mkDefault (cfg.nginx.vhost.enableACME || (cfg.nginx.vhost.useACMEHost != null));
         recommendedProxySettings = true;
-        virtualHosts.${cfg.nginx.host} = {
-          inherit (cfg.nginx) enableACME;
-          forceSSL = cfg.nginx.enableACME;
+        virtualHosts.${cfg.nginx.host} = cfg.nginx.vhost // {
+          forceSSL = cfg.nginx.vhost.forceSSL || cfg.nginx.vhost.enableACME || cfg.nginx.vhost.useACMEHost != null;
           locations."/" = {
             proxyWebsockets = true;
             proxyPass = "https://localhost:9443";
