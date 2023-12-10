@@ -104,13 +104,15 @@
             projectDir = authentik-src;
             python = pkgs.python311;
             overrides = [ defaultPoetryOverrides ] ++ (import ./poetry2nix-python-overrides.nix pkgs);
-            # workaround to remove dev-dependencies for the current combination of legacy pyproject.toml format
-            # used by authentik and poetry2nix's behavior
             groups = [];
             checkGroups = [];
-            pyproject = pkgs.runCommandLocal "patched-pyproject.toml" {} ''
-              sed -e 's,tool.poetry.dev-dependencies,tool.poetry.group.dev.dependencies,' ${authentik-src}/pyproject.toml > $out
-            '';
+            # workaround to remove dev-dependencies for the current combination of legacy pyproject.toml format
+            # used by authentik and poetry2nix's behavior
+            pyproject = builtins.toFile "patched-pyproject.toml" (lib.replaceStrings
+              ["tool.poetry.dev-dependencies"]
+              ["tool.poetry.group.dev.dependencies"]
+              (builtins.readFile "${authentik-src}/pyproject.toml")
+            );
           };
           # server + outposts
           gopkgs = pkgs.buildGo121Module {
