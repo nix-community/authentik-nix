@@ -210,7 +210,7 @@
         };
         checks = {
           default = self.checks.${system}.vmtest;
-          vmtest = (import ./test.nix {
+          vmtest = (import tests/minimal-vmtest.nix {
             inherit pkgs authentik-version;
             inherit (self) nixosModules;
           });
