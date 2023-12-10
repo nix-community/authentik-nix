@@ -133,7 +133,7 @@ in
           package = pkgs.postgresql_14;
           ensureDatabases = mkIf cfg.createDatabase [ "authentik" ];
           ensureUsers = mkIf cfg.createDatabase [
-            { name = "authentik"; ensurePermissions."DATABASE authentik" = "ALL PRIVILEGES"; }
+            { name = "authentik"; ensureDBOwnership = true; }
           ];
         };
       };
