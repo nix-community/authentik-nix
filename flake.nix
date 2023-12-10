@@ -56,10 +56,10 @@
       flake = {
         nixosModules.default = { pkgs, ... }: {
           imports = [ ./module.nix ];
-          services.authentik.authentikComponents = withSystem pkgs.stdenv.hostPlatform.system (
+          services.authentik.authentikComponents = pkgs.lib.mkDefault (withSystem pkgs.stdenv.hostPlatform.system (
             { config, ... }:
             { inherit (config.packages) celery staticWorkdirDeps migrate pythonEnv frontend gopkgs docs; }
-          );
+          ));
         };
       };
       perSystem = { pkgs, system, ... }: let
