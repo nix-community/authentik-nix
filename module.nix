@@ -25,14 +25,8 @@ in
     authentik = {
       enable = mkEnableOption "authentik";
 
-      authentikComponents = {
-        celery = mkOption { type = types.package; };
-        staticWorkdirDeps = mkOption { type = types.package; };
-        migrate = mkOption { type = types.package; };
-        pythonEnv = mkOption { type = types.package; };
-        frontend = mkOption { type = types.package; };
-        gopkgs = mkOption { type = types.package; };
-        docs = mkOption { type = types.package; };
+      authentikComponents = mkOption {
+        type = types.attrsOf types.package;
       };
 
       settings = mkOption {
