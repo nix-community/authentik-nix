@@ -215,13 +215,6 @@
             inherit (self) nixosModules;
           });
         };
-        devShells.default = pkgs.mkShell {
-          packages = [
-            # to generate a v2 lockfile from the v3 lockfile provided by upstream:
-            # npm install --lockfile-version 2 --package-lock-only
-            pkgs.nodejs
-          ];
-        };
       };
     });
 }
