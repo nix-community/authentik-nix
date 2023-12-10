@@ -7,9 +7,6 @@ let
   inherit (lib)
     types;
 
-  inherit (lib.attrsets)
-    recursiveUpdate;
-
   inherit (lib.modules)
     mkDefault
     mkIf
