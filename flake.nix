@@ -53,7 +53,7 @@
         "x86_64-linux"
         "aarch64-linux" # not tested
       ];
-      flake = {
+      flake = { self, ... }: {
         nixosModules.default = { pkgs, ... }: {
           imports = [ ./module.nix ];
           services.authentik.authentikComponents = pkgs.lib.mkDefault (withSystem pkgs.stdenv.hostPlatform.system (
@@ -61,41 +61,39 @@
             { inherit (config.packages) celery staticWorkdirDeps migrate pythonEnv frontend gopkgs docs; }
           ));
         };
+
+        # returns a scope which includes the attrset `authentikComponents`
+        #
+        # the returned scope may be overridden using its `overrideScope` function to
+        # create a new scope with patched versions of individual authentik components
+        #
+        # see ./tests/override-scope.nix for a usage example
+        lib.mkAuthentikScope = let authentik-version' = authentik-version; in {
+          pkgs,
+          system ? pkgs.stdenv.hostPlatform.system,
+          authentik-version ? authentik-version',
+          mkPoetryEnv ? (import inputs.poetry2nix { inherit pkgs; }).mkPoetryEnv,
+          defaultPoetryOverrides ? (import inputs.poetry2nix { inherit pkgs; }).defaultPoetryOverrides,
+          authentikPoetryOverrides ? import ./poetry2nix-python-overrides.nix pkgs,
+          buildNapalmPackage ? napalm.legacyPackages.${system}.buildPackage
+        }:
+          import ./components {
+            inherit pkgs authentik-src authentik-version mkPoetryEnv defaultPoetryOverrides authentikPoetryOverrides buildNapalmPackage;
+          };
       };
       perSystem = { pkgs, system, self', ... }: let
-        inherit (import inputs.poetry2nix { inherit pkgs; })
-          mkPoetryEnv
-          defaultPoetryOverrides;
-        authentikComponents = {
-          inherit (self'.packages) celery staticWorkdirDeps migrate pythonEnv frontend gopkgs docs; };
-        authentikPoetryOverrides = import ./poetry2nix-python-overrides.nix pkgs;
+        inherit (self.lib.mkAuthentikScope { inherit pkgs; }) authentikComponents;
       in {
         packages = {
-          docs = pkgs.callPackage components/docs.nix {
-            buildNapalmPackage = napalm.legacyPackages.${system}.buildPackage;
-            inherit authentik-src authentik-version;
-          };
-          frontend = pkgs.callPackage components/frontend.nix {
-            buildNapalmPackage = napalm.legacyPackages.${system}.buildPackage;
-            inherit authentik-src authentik-version authentikComponents;
-          };
-          pythonEnv = pkgs.callPackage components/pythonEnv.nix {
-            inherit authentik-src mkPoetryEnv defaultPoetryOverrides authentikPoetryOverrides;
-          };
-          # server + outposts
-          gopkgs = pkgs.callPackage components/gopkgs.nix {
-            inherit authentik-src authentik-version authentikComponents;
-          };
-          staticWorkdirDeps = pkgs.callPackage components/staticWorkdirDeps.nix {
-            inherit authentik-src authentikComponents;
-          };
-          migrate = pkgs.callPackage components/migrate.nix {
-            inherit authentik-src authentikComponents;
-          };
-          # worker
-          celery = pkgs.callPackage components/celery.nix {
-            inherit authentikComponents;
-          };
+          inherit (authentikComponents)
+            docs
+            frontend
+            pythonEnv
+            gopkgs
+            staticWorkdirDeps
+            migrate
+            celery;
+
           # terraform provider
           terraform-provider-authentik = inputs.nixpkgs-23-05.legacyPackages.${system}.buildGo118Module rec {
             pname = "terraform-provider-authentik";
@@ -121,6 +119,11 @@
           vmtest = (import tests/minimal-vmtest.nix {
             inherit pkgs authentik-version;
             inherit (self) nixosModules;
+          });
+          override-scope = (import tests/override-scope.nix {
+            inherit pkgs authentik-version;
+            inherit (self) nixosModules;
+            inherit (self.lib) mkAuthentikScope;
           });
         };
       };
