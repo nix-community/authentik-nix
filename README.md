@@ -20,8 +20,10 @@ Please note that this project is not directly affiliated with the official [auth
   The NixOS module configures authentik services, redis and (by default) a local postgres instance. The upstream default authentik configuration can be partially overridden by setting desired parameters under `services.authentik.settings`.
 * [poetry2nix-python-overrides.nix](./poetry2nix-python-overrides.nix)
   contains overrides and fixes for building the python env
-* [test.nix](./test.nix)
-  A minimal NixOS VM test. Confirms that the services configured by the module start and manually goes through the initial setup flow. Two screenshots are taken during test execution to confirm that the frontend is rendered correctly.
+* [minimal-vmtest.nix](./tests/minimal-vmtest.nix)
+  A minimal NixOS VM test. Confirms that the services configured by the module start and manually goes through the initial setup flow. Some screenshots are taken during test execution to confirm that the frontend is rendered correctly.
+* [components](./components/default.nix)
+  An overridable scope, including the individual authentik components. An example for how to create a custom scope is provided in [override-scope.nix](./tests/override-scope.nix).
 
 ## Usage
 
@@ -71,7 +73,7 @@ Add authentik-nix to your flake, import the module and configure it. Relevant se
 # flake.nix
 {
   inputs.authentik-nix = {
-    url = "github:mayflower/authentik-nix";
+    url = "github:nix-community/authentik-nix";
 
     ## optional overrides. Note that using a different version of nixpkgs can cause issues, especially with python dependencies
     # inputs.nixpkgs.follows = "nixpkgs"
