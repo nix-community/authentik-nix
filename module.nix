@@ -234,6 +234,7 @@ in
           DynamicUser = true;
           ExecStart = "${config.services.authentik.authentikComponents.gopkgs}/bin/ldap";
           EnvironmentFile = mkIf (cfg.environmentFile != null) [ cfg.environmentFile ];
+          Restart = "on-failure";
         };
       };
     }))
