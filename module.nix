@@ -154,6 +154,9 @@ in
           requiredBy = [ "authentik.service" ];
           before = [ "authentik.service" ];
           restartTriggers = [ config.environment.etc."authentik/config.yml".source ];
+          preStart = ''
+            ln -svf ${config.services.authentik.authentikComponents.staticWorkdirDeps}/* /run/authentik/
+          '';
           serviceConfig = {
             RuntimeDirectory = "authentik";
             WorkingDirectory = "%t/authentik";
