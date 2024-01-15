@@ -114,6 +114,8 @@ in
             host = mkDefault "";
           };
           cert_discovery_dir = mkIf (cfg.nginx.enable && cfg.nginx.enableACME) "env://CREDENTIALS_DIRECTORY";
+          paths.media = mkDefault "/var/lib/authentik/media";
+          media.enable_upload = mkDefault true;
         };
         redis.servers.authentik = {
           enable = true;
@@ -181,6 +183,7 @@ in
           restartTriggers = [ config.environment.etc."authentik/config.yml".source ];
           preStart = ''
             ln -svf ${cfg.authentikComponents.staticWorkdirDeps}/* /var/lib/authentik/
+            mkdir -p ${cfg.settings.paths.media}
           '';
           serviceConfig = {
             Environment = [
