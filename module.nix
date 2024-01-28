@@ -175,6 +175,7 @@ in
         };
         authentik = {
           wantedBy = [ "multi-user.target" ];
+          wants = [ "network-online.target" ];
           after = [
             "network-online.target"
             "postgresql.service"
@@ -225,6 +226,7 @@ in
     {
       systemd.services.authentik-ldap = {
         wantedBy = [ "multi-user.target" ];
+        wants = [ "network-online.target" ];
         after = [
           "network-online.target"
           "authentik.service"
