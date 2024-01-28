@@ -231,7 +231,6 @@ in
           "network-online.target"
           "authentik.service"
         ];
-        restartTriggers = [ config.environment.etc."authentik/config.yml".source ];
         serviceConfig = {
           RuntimeDirectory = "authentik-ldap";
           UMask = "0027";
