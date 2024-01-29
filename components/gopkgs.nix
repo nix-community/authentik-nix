@@ -41,7 +41,7 @@ buildGo121Module {
     "cmd/proxy"
     "cmd/radius"
   ];
-  vendorHash = "sha256-8F9emmQmbe7R+xtGrjV5ht0adGasU6WAvLa8Wxr+j8M=";
+  vendorHash = "sha256-74rSuZrO5c7mjhHh0iQlJEkOslsFrcDb1aRXXC4RsUM=";
   nativeBuildInputs = [ makeWrapper ];
   postInstall = ''
     wrapProgram $out/bin/server --prefix PATH : ${authentikComponents.pythonEnv}/bin
