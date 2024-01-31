@@ -108,7 +108,7 @@ in
         authentik.settings = {
           blueprints_dir = mkDefault "${cfg.authentikComponents.staticWorkdirDeps}/blueprints";
           template_dir = mkDefault "${cfg.authentikComponents.staticWorkdirDeps}/templates";
-          postgresql = {
+          postgresql = mkIf cfg.createDatabase {
             user = mkDefault "authentik";
             name = mkDefault "authentik";
             host = mkDefault "";
@@ -121,11 +121,11 @@ in
           enable = true;
           port = 6379;
         };
-        postgresql = {
+        postgresql = mkIf cfg.createDatabase {
           enable = true;
           package = pkgs.postgresql_14;
-          ensureDatabases = mkIf cfg.createDatabase [ "authentik" ];
-          ensureUsers = mkIf cfg.createDatabase [
+          ensureDatabases = [ "authentik" ];
+          ensureUsers = [
             { name = "authentik"; ensureDBOwnership = true; }
           ];
         };
@@ -139,8 +139,8 @@ in
       systemd.services = {
         authentik-migrate = {
           requiredBy = [ "authentik.service" ];
-          requires = [ "postgresql.service" ];
-          after = [ "postgresql.service" ];
+          requires = lib.optionals cfg.createDatabase [ "postgresql.service" ];
+          after = lib.optionals cfg.createDatabase [ "postgresql.service" ];
           before = [ "authentik.service" ];
           restartTriggers = [ config.environment.etc."authentik/config.yml".source ];
           serviceConfig = {
@@ -178,9 +178,8 @@ in
           wants = [ "network-online.target" ];
           after = [
             "network-online.target"
-            "postgresql.service"
             "redis-authentik.service"
-          ];
+          ] ++ (lib.optionals cfg.createDatabase [ "postgresql.service" ]);
           restartTriggers = [ config.environment.etc."authentik/config.yml".source ];
           preStart = ''
             ln -svf ${cfg.authentikComponents.staticWorkdirDeps}/* /var/lib/authentik/
