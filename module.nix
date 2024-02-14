@@ -96,6 +96,29 @@ in
         '';
       };
     };
+
+    # RADIUS oupost
+    authentik-radius = {
+      enable = mkEnableOption "authentik RADIUS outpost";
+
+      environmentFile = mkOption {
+        type = types.nullOr types.path;
+        default = null;
+        example = "/run/secrets/authentik-radius/authentik-radius-env";
+        description = mdDoc ''
+          Environment file as defined in {manpage}`systemd.exec(5)`.
+
+          Secrets may be passed to the service without adding them to the world-readable
+          /nix/store, by specifying the desied secrets as environment variables according
+          to the authentic documentation.
+
+          ```
+            # example content
+            AUTHENTIK_TOKEN=<token from authentik for this outpost>
+          ```
+        '';
+      };
+    };
   };
 
   config = mkMerge [
@@ -236,6 +259,30 @@ in
           WorkingDirectory = "%t/authentik-ldap";
           DynamicUser = true;
           ExecStart = "${config.services.authentik.authentikComponents.gopkgs}/bin/ldap";
+          EnvironmentFile = mkIf (cfg.environmentFile != null) [ cfg.environmentFile ];
+          Restart = "on-failure";
+        };
+      };
+    }))
+
+    # RADIUS outpost
+    (mkIf config.services.authentik-radius.enable (let
+      cfg = config.services.authentik-radius;
+    in
+    {
+      systemd.services.authentik-radius = {
+        wantedBy = [ "multi-user.target" ];
+        wants = [ "network-online.target" ];
+        after = [
+          "network-online.target"
+          "authentik.service"
+        ];
+        serviceConfig = {
+          RuntimeDirectory = "authentik-radius";
+          UMask = "0027";
+          WorkingDirectory = "%t/authentik-radius";
+          DynamicUser = true;
+          ExecStart = "${config.services.authentik.authentikComponents.gopkgs}/bin/radius";
           EnvironmentFile = mkIf (cfg.environmentFile != null) [ cfg.environmentFile ];
           Restart = "on-failure";
         };
