@@ -142,6 +142,9 @@ in
     (mkIf config.services.authentik.enable (let
       cfg = config.services.authentik;
 
+      # https://goauthentik.io/docs/installation/docker-compose#startup
+      tz = "UTC";
+
       # Passed to each service and to the `ak` wrapper using `systemd-run(1)`
       serviceDefaults = {
         DynamicUser = true;
@@ -198,9 +201,6 @@ in
         '')
       ];
 
-      # https://goauthentik.io/docs/installation/docker-compose#explanation
-      time.timeZone = "UTC";
-
       environment.etc."authentik/config.yml".source = settingsFormat.generate "authentik.yml" cfg.settings;
 
       systemd.services = {
@@ -211,6 +211,7 @@ in
           after = [ "network-online.target" ] ++ lib.optionals cfg.createDatabase [ "postgresql.service" ];
           before = [ "authentik.service" ];
           restartTriggers = [ config.environment.etc."authentik/config.yml".source ];
+          environment.TZ = tz;
           serviceConfig = mkMerge [ serviceDefaults {
             Type = "oneshot";
             RemainAfterExit = true;
@@ -233,6 +234,7 @@ in
           preStart = ''
             ln -svf ${config.services.authentik.authentikComponents.staticWorkdirDeps}/* /run/authentik/
           '';
+          environment.TZ = tz;
           serviceConfig = mkMerge [ serviceDefaults {
             RuntimeDirectory = "authentik";
             WorkingDirectory = "%t/authentik";
@@ -257,6 +259,7 @@ in
             ln -svf ${cfg.authentikComponents.staticWorkdirDeps}/* /var/lib/authentik/
             mkdir -p ${cfg.settings.paths.media}
           '';
+          environment.TZ = tz;
           serviceConfig = mkMerge [ serviceDefaults {
             Environment = [
               "AUTHENTIK_ERROR_REPORTING__ENABLED=false"
