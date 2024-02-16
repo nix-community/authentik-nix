@@ -184,7 +184,7 @@ in
         };
         postgresql = mkIf cfg.createDatabase {
           enable = true;
-          package = pkgs.postgresql_14;
+          package = lib.mkDefault pkgs.postgresql_14;
           ensureDatabases = [ "authentik" ];
           ensureUsers = [
             { name = "authentik"; ensureDBOwnership = true; }
