@@ -150,6 +150,7 @@ in
             User = "authentik";
             ExecStart = "${cfg.authentikComponents.migrate}/bin/migrate.py";
             EnvironmentFile = mkIf (cfg.environmentFile != null) [ cfg.environmentFile ];
+            inherit (config.systemd.services.authentik.serviceConfig) StateDirectory;
           };
         };
         authentik-worker = {
