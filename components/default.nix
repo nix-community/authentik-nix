@@ -29,7 +29,7 @@ pkgs.lib.makeScope pkgs.newScope (final:
       inherit authentik-src;
     };
     # worker
-    celery = final.callPackage ./celery.nix {
+    manage = final.callPackage ./manage.nix {
     };
   in
   {
@@ -41,7 +41,7 @@ pkgs.lib.makeScope pkgs.newScope (final:
         gopkgs
         staticWorkdirDeps
         migrate
-        celery;
+        manage;
     };
     inherit authentik-src authentik-version;
   }

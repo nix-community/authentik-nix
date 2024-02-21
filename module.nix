@@ -165,7 +165,7 @@ in
             DynamicUser = true;
             User = "authentik";
             # TODO maybe make this configurable
-            ExecStart = "${cfg.authentikComponents.celery}/bin/celery -A authentik.root.celery worker -Ofair --max-tasks-per-child=1 --autoscale 3,1 -E -B -s /tmp/celerybeat-schedule -Q authentik,authentik_scheduled,authentik_events";
+            ExecStart = "${cfg.authentikComponents.manage}/bin/manage.py worker";
             EnvironmentFile = mkIf (cfg.environmentFile != null) [ cfg.environmentFile ];
             LoadCredential = mkIf (cfg.nginx.enable && cfg.nginx.enableACME) [
               "${cfg.nginx.host}.pem:${config.security.acme.certs.${cfg.nginx.host}.directory}/fullchain.pem"

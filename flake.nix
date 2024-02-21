@@ -58,7 +58,7 @@
           imports = [ ./module.nix ];
           services.authentik.authentikComponents = pkgs.lib.mkDefault (withSystem pkgs.stdenv.hostPlatform.system (
             { config, ... }:
-            { inherit (config.packages) celery staticWorkdirDeps migrate pythonEnv frontend gopkgs docs; }
+            { inherit (config.packages) manage staticWorkdirDeps migrate pythonEnv frontend gopkgs docs; }
           ));
         };
 
@@ -92,7 +92,7 @@
             gopkgs
             staticWorkdirDeps
             migrate
-            celery;
+            manage;
 
           # terraform provider
           terraform-provider-authentik = inputs.nixpkgs-23-05.legacyPackages.${system}.buildGo118Module rec {
