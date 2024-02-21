@@ -77,7 +77,7 @@ pkgs.nixosTest {
         machine.wait_for_text("General system status")
         machine.screenshot("3_rendered_admin_interface")
         machine.succeed("su - alice -c 'xdotool click 1' >&2")
-        machine.succeed("su - alice -c 'xdotool key --delay 100 Page_Down Page_Down' >&2")
+        machine.succeed("su - alice -c 'xdotool key --delay 100 Page_Down' >&2")
         machine.wait_for_text("${authentik-version}")
         machine.screenshot("4_correct_version_in_admin_interface")
 
