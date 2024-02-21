@@ -14,6 +14,7 @@ pkgs:
       "pytest-github-actions-annotate-failures"
       "drf-jsonschema-serializer"
       "pydantic-scim"
+      "django-tenants"
     ]))
   )
   (final: prev: {
@@ -77,6 +78,14 @@ pkgs:
         nativeBuildInputs = oA.nativeBuildInputs ++ [
           final.flit-core
         ];
+      });
+      cryptography = prev.cryptography.overridePythonAttrs (oA: {
+        cargoDeps = pkgs.rustPlatform.fetchCargoTarball {
+            src = oA.src;
+            sourceRoot = "${oA.pname}-${oA.version}/src/rust";
+            name = "${oA.pname}-${oA.version}";
+            sha256 = "sha256-h6TjGcn81TSQuu+16ty60e6P07uH2gXa3VmG+Vy3eu0=";
+          };
       });
     }
   )
