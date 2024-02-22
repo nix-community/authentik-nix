@@ -84,7 +84,7 @@ pkgs:
             src = oA.src;
             sourceRoot = "${oA.pname}-${oA.version}/src/rust";
             name = "${oA.pname}-${oA.version}";
-            sha256 = "sha256-h6TjGcn81TSQuu+16ty60e6P07uH2gXa3VmG+Vy3eu0=";
+            sha256 = "sha256-qaXQiF1xZvv4sNIiR2cb5TfD7oNiYdvUwcm37nh2P2M=";
           };
       });
     }
