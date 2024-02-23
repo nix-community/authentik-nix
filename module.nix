@@ -7,6 +7,15 @@ let
   inherit (lib)
     types;
 
+  inherit (lib.attrsets)
+    attrNames
+    getAttrs
+    mapAttrsToList;
+
+  inherit (lib.lists)
+    flatten
+    toList;
+
   inherit (lib.modules)
     mkDefault
     mkIf
@@ -16,6 +25,13 @@ let
     mdDoc
     mkEnableOption
     mkOption;
+
+  inherit (lib.strings)
+    concatStringsSep;
+
+  inherit (lib.trivial)
+    boolToString
+    isBool;
 
   settingsFormat = pkgs.formats.yaml {};
 in
@@ -125,6 +141,25 @@ in
     # authentik server
     (mkIf config.services.authentik.enable (let
       cfg = config.services.authentik;
+
+      # Passed to each service and to the `ak` wrapper using `systemd-run(1)`
+      serviceDefaults = {
+        DynamicUser = true;
+        User = "authentik";
+        EnvironmentFile = mkIf (cfg.environmentFile != null) [ cfg.environmentFile ];
+      };
+      akOptions = flatten (mapAttrsToList
+        # Map defaults for each authentik service (listed above) to command line parameters for
+        # `systemd-run(1)` in order to spin up an environment with correct (dynamic) user,
+        # state directory and environment to run `ak` inside.
+        (k: vs: map
+          (v: "--property ${k}=${if isBool v then boolToString v else toString v}")
+          (toList vs))
+        # Read serviceDefaults from `authentik.service`. That way, module system primitives (mk*)
+        # can be used inside `serviceDefaults` and it doesn't need to be evaluated here again.
+        (getAttrs (attrNames serviceDefaults) config.systemd.services.authentik.serviceConfig // {
+          StateDirectory = "authentik";
+        }));
     in
     {
       services = {
@@ -154,6 +189,15 @@ in
         };
       };
 
+      environment.systemPackages = [
+        (pkgs.writeShellScriptBin "ak" ''
+          exec ${config.systemd.package}/bin/systemd-run --pty --collect \
+            ${concatStringsSep " \\\n" akOptions} \
+            --working-directory /var/lib/authentik \
+            -- ${cfg.authentikComponents.manage}/bin/manage.py "$@"
+        '')
+      ];
+
       # https://goauthentik.io/docs/installation/docker-compose#explanation
       time.timeZone = "UTC";
 
@@ -166,15 +210,12 @@ in
           after = lib.optionals cfg.createDatabase [ "postgresql.service" ];
           before = [ "authentik.service" ];
           restartTriggers = [ config.environment.etc."authentik/config.yml".source ];
-          serviceConfig = {
+          serviceConfig = mkMerge [ serviceDefaults {
             Type = "oneshot";
             RemainAfterExit = true;
-            DynamicUser = true;
-            User = "authentik";
             ExecStart = "${cfg.authentikComponents.migrate}/bin/migrate.py";
-            EnvironmentFile = mkIf (cfg.environmentFile != null) [ cfg.environmentFile ];
             inherit (config.systemd.services.authentik.serviceConfig) StateDirectory;
-          };
+          } ];
         };
         authentik-worker = {
           requiredBy = [ "authentik.service" ];
@@ -183,19 +224,16 @@ in
           preStart = ''
             ln -svf ${config.services.authentik.authentikComponents.staticWorkdirDeps}/* /run/authentik/
           '';
-          serviceConfig = {
+          serviceConfig = mkMerge [ serviceDefaults {
             RuntimeDirectory = "authentik";
             WorkingDirectory = "%t/authentik";
-            DynamicUser = true;
-            User = "authentik";
             # TODO maybe make this configurable
             ExecStart = "${cfg.authentikComponents.manage}/bin/manage.py worker";
-            EnvironmentFile = mkIf (cfg.environmentFile != null) [ cfg.environmentFile ];
             LoadCredential = mkIf (cfg.nginx.enable && cfg.nginx.enableACME) [
               "${cfg.nginx.host}.pem:${config.security.acme.certs.${cfg.nginx.host}.directory}/fullchain.pem"
               "${cfg.nginx.host}.key:${config.security.acme.certs.${cfg.nginx.host}.directory}/key.pem"
             ];
-          };
+          } ];
         };
         authentik = {
           wantedBy = [ "multi-user.target" ];
@@ -209,7 +247,7 @@ in
             ln -svf ${cfg.authentikComponents.staticWorkdirDeps}/* /var/lib/authentik/
             mkdir -p ${cfg.settings.paths.media}
           '';
-          serviceConfig = {
+          serviceConfig = mkMerge [ serviceDefaults {
             Environment = [
               "AUTHENTIK_ERROR_REPORTING__ENABLED=false"
               "AUTHENTIK_DISABLE_UPDATE_CHECK=true"
@@ -220,10 +258,8 @@ in
             UMask = "0027";
             # TODO /run might be sufficient
             WorkingDirectory = "%S/authentik";
-            DynamicUser = true;
             ExecStart = "${cfg.authentikComponents.gopkgs}/bin/server";
-            EnvironmentFile = mkIf (cfg.environmentFile != null) [ cfg.environmentFile ];
-          };
+          } ];
         };
       };
 
