@@ -207,7 +207,8 @@ in
         authentik-migrate = {
           requiredBy = [ "authentik.service" ];
           requires = lib.optionals cfg.createDatabase [ "postgresql.service" ];
-          after = lib.optionals cfg.createDatabase [ "postgresql.service" ];
+          wants = [ "network-online.target" ];
+          after = [ "network-online.target" ] ++ lib.optionals cfg.createDatabase [ "postgresql.service" ];
           before = [ "authentik.service" ];
           restartTriggers = [ config.environment.etc."authentik/config.yml".source ];
           serviceConfig = mkMerge [ serviceDefaults {
@@ -219,6 +220,8 @@ in
         };
         authentik-worker = {
           requiredBy = [ "authentik.service" ];
+          wants = [ "network-online.target" ];
+          after = [ "network-online.target" ];
           before = [ "authentik.service" ];
           restartTriggers = [ config.environment.etc."authentik/config.yml".source ];
           preStart = ''
