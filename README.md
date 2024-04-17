@@ -2,13 +2,6 @@
 
 A Nix flake providing a package, NixOS module and basic VM test for [authentik](https://github.com/goauthentik/authentik)
 
-## TOC
-- [Important Note](#important-note)
-- [Overview](#overview)
-- [Usage](#usage)
-- [Updating](#updating)
-- [License](#license)
-
 ## Important Note
 Please note that this project is not directly affiliated with the official [authentik](https://github.com/goauthentik/authentik) project. Most importantly this means that there is no official support for this packaging and deployment approach. Therefore, please refrain from opening issues for the official project when running into problems with this flake. Feel free to open issues here. If in doubt, please open an issue here first so we can make sure that it's not directly related to this packaging/deployment approach before escalating to the official project.
 
@@ -112,6 +105,35 @@ Add authentik-nix to your flake, import the module and configure it. Relevant se
     #   };
     # };
   };
+}
+```
+
+## Without flakes
+
+All packages, modules and tests are available via flake-compat and may be used without flakes.
+This requires some extra work, but this example NixOS configuration may help you to get started:
+
+```nix
+# configuration.nix
+{ ... }:
+let
+  authentik-version = "2024.2.3";
+  authentik-nix-src = builtins.fetchTarball {
+    url = "https://github.com/nix-community/authentik-nix/archive/version/${authentik-version}.tar.gz";
+    sha256 = "15b9a2csd2m3vwhj3xc24nrqnj1hal60jrd69splln0ynbnd9ki4";
+  };
+  authentik-nix = import authentik-nix-src;
+in
+{
+  imports = [
+    authentik-nix.nixosModules.default
+  ];
+
+  services.authentik = {
+    # ...
+  };
+
+  system.stateVersion = "23.11";
 }
 ```
 
