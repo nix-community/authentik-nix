@@ -1,12 +1,11 @@
 diff --git a/authentik/api/v3/config.py b/authentik/api/v3/config.py
 --- a/authentik/api/v3/config.py
 +++ b/authentik/api/v3/config.py
-@@ -66,7 +66,7 @@ class ConfigView(APIView):
-         """Get all capabilities this server instance supports"""
-         caps = []
-         deb_test = settings.DEBUG or settings.TEST
--        if Path(settings.MEDIA_ROOT).is_mount() or deb_test:
-+        if Path(settings.MEDIA_ROOT).is_mount() or CONFIG.get_bool("media.enable_upload") or deb_test:
+@@ -71,6 +71,7 @@ class ConfigView(APIView):
+         if (
+             CONFIG.get("storage.media.backend", "file") == "s3"
+             or Path(settings.STORAGES["default"]["OPTIONS"]["location"]).is_mount()
++            or CONFIG.get_bool("media.enable_upload")
+             or deb_test
+         ):
              caps.append(Capabilities.CAN_SAVE_MEDIA)
-         if GEOIP_READER.enabled:
-             caps.append(Capabilities.CAN_GEO_IP)
