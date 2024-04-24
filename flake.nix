@@ -8,10 +8,13 @@
       url = "github:edolstra/flake-compat";
       flake = false;
     };
-    # nixos-unstable required for go 1.21 until 23.11 release
-    nixpkgs.url = "github:NixOS/nixpkgs/nixos-23.11";
-    # explicitly required for go 1.18 (terraform-provider)
+
+    # nixos-unstable required for go 1.22, until 24.05 release
+    nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
+
+    # will be dropped with the next update of the terraform provider
     nixpkgs-23-05.url = "github:NixOS/nixpkgs/nixos-23.05";
+
     poetry2nix = {
       url = "github:nix-community/poetry2nix";
       inputs = {
@@ -27,7 +30,7 @@
       };
     };
     authentik-src = { # change version string in outputs as well when updating
-      url = "github:goauthentik/authentik/version/2024.2.3";
+      url = "github:goauthentik/authentik/version/2024.4.1";
       flake = false;
     };
   };
@@ -47,7 +50,7 @@
     { inherit inputs; }
     ({ inputs, lib, withSystem, ... }:
     let
-      authentik-version = "2024.2.3"; # to pass to the drvs of some components
+      authentik-version = "2024.4.1"; # to pass to the drvs of some components
     in {
       systems = [
         "x86_64-linux"

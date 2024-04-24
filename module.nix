@@ -214,6 +214,12 @@ in
           serviceConfig = mkMerge [ serviceDefaults {
             Type = "oneshot";
             RemainAfterExit = true;
+            RuntimeDirectory = "authentik-migrate";
+            WorkingDirectory = "%t/authentik-migrate";
+            ExecStartPre = [
+              # needs access to "authentik/sources/schemas"
+              "${pkgs.coreutils}/bin/ln -svf ${cfg.authentikComponents.staticWorkdirDeps}/authentik"
+            ];
             ExecStart = "${cfg.authentikComponents.migrate}/bin/migrate.py";
             inherit (config.systemd.services.authentik.serviceConfig) StateDirectory;
           } ];
@@ -230,12 +236,13 @@ in
           serviceConfig = mkMerge [ serviceDefaults {
             RuntimeDirectory = "authentik";
             WorkingDirectory = "%t/authentik";
-            # TODO maybe make this configurable
             ExecStart = "${cfg.authentikComponents.manage}/bin/manage.py worker";
             LoadCredential = mkIf (cfg.nginx.enable && cfg.nginx.enableACME) [
               "${cfg.nginx.host}.pem:${config.security.acme.certs.${cfg.nginx.host}.directory}/fullchain.pem"
               "${cfg.nginx.host}.key:${config.security.acme.certs.${cfg.nginx.host}.directory}/key.pem"
             ];
+            # needs access to $StateDirectory/media/public
+            inherit (config.systemd.services.authentik.serviceConfig) StateDirectory;
           } ];
         };
         authentik = {

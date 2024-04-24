@@ -1,12 +1,12 @@
 { authentik-src
 , authentik-version
 , authentikComponents
-, buildGo121Module
+, buildGo122Module
 , lib
 , makeWrapper
 }:
 
-buildGo121Module {
+buildGo122Module {
   pname = "authentik-gopkgs";
   version = authentik-version;
   prePatch = ''
@@ -41,7 +41,7 @@ buildGo121Module {
     "cmd/proxy"
     "cmd/radius"
   ];
-  vendorHash = "sha256-UIJBCTq7AJGUDIlZtJaWCovyxlMPzj2BCJQqthybEz4=";
+  vendorHash = "sha256-YpOG5pNw5CNSubm1OkPVpSi7l+l5UdJFido2SQLtK3g=";
   nativeBuildInputs = [ makeWrapper ];
   postInstall = ''
     wrapProgram $out/bin/server --prefix PATH : ${authentikComponents.pythonEnv}/bin

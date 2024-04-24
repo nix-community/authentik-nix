@@ -11,8 +11,9 @@ buildNapalmPackage "${authentik-src}/website" {
   npmCommands = [
     "cp -v ${authentik-src}/SECURITY.md ../SECURITY.md"
     "cp -vr ${authentik-src}/blueprints ../blueprints"
+    "cp -v ${authentik-src}/schema.yml ../schema.yml"
     "npm install --include=dev"
-    "npm run build-docs-only"
+    "npm run build-bundled"
   ];
   installPhase = ''
     rm -r ../website/node_modules/.cache

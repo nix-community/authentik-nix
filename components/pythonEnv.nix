@@ -3,12 +3,12 @@
 , defaultPoetryOverrides
 , lib
 , mkPoetryEnv
-, python311
+, python312
 }:
 
 mkPoetryEnv {
   projectDir = authentik-src;
-  python = python311;
+  python = python312;
   overrides = [
     defaultPoetryOverrides
   ] ++ authentikPoetryOverrides;

@@ -8,75 +8,33 @@ pkgs:
         nativeBuildInputs = (oA.nativeBuildInputs or []) ++ [ final.setuptools ];
       });
     }) [
-      "bump2version"
       "dumb-init"
-      "opencontainers"
-      "pytest-github-actions-annotate-failures"
-      "drf-jsonschema-serializer"
-      "pydantic-scim"
       "django-tenants"
     ]))
   )
   (final: prev: {
-      ruff = null; # don't need a linter for the package %), groups = [] && checkGroups = [] doesn't seem to work
-      django-otp = prev.django-otp.overrideAttrs (oA: {
-        buildInputs = [ final.hatchling ];
-      });
-      service-identity = prev.service-identity.overrideAttrs (oA: {
-        buildInputs = [
-          final.hatchling
-          final.hatch-fancy-pypi-readme
-          final.hatch-vcs
-        ];
-      });
-      pyrad = prev.pyrad.overrideAttrs (oA: {
-        nativeBuildInputs = oA.nativeBuildInputs ++ [
-          final.poetry
-        ];
-      });
       xmlsec = prev.xmlsec.overridePythonAttrs (oA: {
         nativeBuildInputs = oA.nativeBuildInputs ++ [ final.setuptools final.pkgconfig ];
         buildInputs = [ pkgs.xmlsec.dev pkgs.xmlsec pkgs.libxml2 pkgs.libtool ];
       });
       opencontainers = prev.opencontainers.overrideAttrs (oA: {
         nativeBuildInputs = oA.nativeBuildInputs ++ [
+          final.setuptools
           final.pytest-runner final.pytest
-        ];
-      });
-      urllib3-secure-extra = prev.urllib3-secure-extra.overrideAttrs (oA: {
-        buildInputs = [ final.flit-core ];
-      });
-      pydantic-scim = prev.pydantic-scim.overrideAttrs (oA: {
-        nativeBuildInputs = oA.nativeBuildInputs ++ [
-          final.setuptools-scm
         ];
       });
       psycopg-c = prev.psycopg-c.overrideAttrs (oA: {
         nativeBuildInputs = oA.nativeBuildInputs ++ [
           final.setuptools
           final.tomli
-          final.cython_3
+          final.cython-3
           pkgs.postgresql
         ];
       });
-      psycopg = prev.psycopg.overrideAttrs (oA: {
-        propagatedBuildInputs = oA.propagatedBuildInputs ++ [
-          final.psycopg-c
-        ];
-        pythonImportsCheck = [
-          "psycopg"
-          "psycopg_c"
-        ];
-      });
       twisted = prev.twisted.overrideAttrs (oA: {
-        buildInputs = [
+        buildInputs = oA.buildInputs ++ [
           final.hatchling
           final.hatch-fancy-pypi-readme
-        ];
-      });
-      django-filter = prev.django-filter.overrideAttrs (oA: {
-        nativeBuildInputs = oA.nativeBuildInputs ++ [
-          final.flit-core
         ];
       });
       cryptography = prev.cryptography.overridePythonAttrs (oA: {
@@ -86,6 +44,55 @@ pkgs:
             name = "${oA.pname}-${oA.version}";
             sha256 = "sha256-qaXQiF1xZvv4sNIiR2cb5TfD7oNiYdvUwcm37nh2P2M=";
           };
+      });
+      dnspython = prev.dnspython.overrideAttrs (oA: {
+        buildInputs = oA.buildInputs ++ [
+          final.hatchling
+        ];
+      });
+      sqlparse = prev.sqlparse.overrideAttrs (oA: {
+        buildInputs = oA.buildInputs ++ [
+          final.hatchling
+        ];
+      });
+      scim2-filter-parser = prev.scim2-filter-parser.overrideAttrs (oA: {
+        patches = [
+          (pkgs.fetchpatch {
+            name = "replace-poetry-with-poetry-core.patch";
+            url = "https://patch-diff.githubusercontent.com/raw/15five/scim2-filter-parser/pull/43.patch";
+            hash = "sha256-PjJH1S5CDe/BMI0+mB34KdpNNcHfexBFYBmHolsWH4o=";
+          })
+        ];
+        nativeBuildInputs = oA.nativeBuildInputs ++ [
+          final.poetry-core
+        ];
+      });
+      # alias because lxml references cython_3 in nativeBuildInputs
+      cython_3 = final.cython-3;
+      #pyyaml = pkgs.python312.pkgs.pyyaml;
+      pyyaml = prev.pyyaml.overrideAttrs (oA:
+      let
+        # checks if derivation is cython with major version 3
+        isNotCython3 = drv:
+          let
+            drvInfo = builtins.parseDrvName drv.name;
+            isCython = pkgs.lib.hasSuffix "-cython" drvInfo.name;
+            isVersion3 = pkgs.lib.versions.major drvInfo.version == "3";
+          in
+          isCython -> !isVersion3;
+
+        # removes cython3 derivation from list
+        removeCython3 = builtins.filter isNotCython3;
+      in
+      {
+        # pyyaml 6.0.1 doesn't build with cython3, see upstream nixpkgs
+        nativeBuildInputs = (removeCython3 oA.nativeBuildInputs) ++ [
+          pkgs.python312Packages.cython_0
+          final.setuptools
+        ];
+        buildInputs = oA.buildInputs ++ [
+          pkgs.libyaml
+        ];
       });
     }
   )
