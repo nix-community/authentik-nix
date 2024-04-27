@@ -12,9 +12,6 @@
     # nixos-unstable required for go 1.22, until 24.05 release
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
 
-    # will be dropped with the next update of the terraform provider
-    nixpkgs-23-05.url = "github:NixOS/nixpkgs/nixos-23.05";
-
     poetry2nix = {
       url = "github:nix-community/poetry2nix";
       inputs = {
@@ -38,7 +35,6 @@
   outputs = inputs@{
     self,
     nixpkgs,
-    nixpkgs-23-05,
     flake-parts,
     poetry2nix,
     napalm,
@@ -98,17 +94,17 @@
             manage;
 
           # terraform provider
-          terraform-provider-authentik = inputs.nixpkgs-23-05.legacyPackages.${system}.buildGo118Module rec {
+          terraform-provider-authentik = inputs.nixpkgs.legacyPackages.${system}.buildGo121Module rec {
             pname = "terraform-provider-authentik";
-            version = "2023.10.0";
+            version = "2024.4.0";
             src = pkgs.fetchFromGitHub {
               owner = "goauthentik";
               repo = pname;
               rev = "v${version}";
-              sha256 = "sha256-eyWpssvYe3KKr2vfMRBfE4W1xrZZFeP55VmAQoitamc=";
+              sha256 = "sha256-Uyh/XkAjukJwVBu43H9Eq8ve4eF3nfYsK0jC6KdfZ3U=";
             };
             doCheck = false; # tests are run against authentik -> vm test
-            vendorSha256 = "sha256-aDExL3uFLhCqFibrepb2zVOJ7aW5CWjuqtx73w7p1qc=";
+            vendorHash = "sha256-HXrct5K7BjAdExVZM4o408YIqLQs3PeK0zwVAE93/PA=";
             postInstall = ''
               path="$out/libexec/terraform-providers/registry.terraform.io/goauthentik/authentik/${version}/''${GOOS}_''${GOARCH}/"
               mkdir -p "$path"
