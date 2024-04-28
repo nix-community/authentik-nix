@@ -261,12 +261,6 @@ in
           '';
           environment.TZ = tz;
           serviceConfig = mkMerge [ serviceDefaults {
-            Environment = [
-              "AUTHENTIK_ERROR_REPORTING__ENABLED=false"
-              "AUTHENTIK_DISABLE_UPDATE_CHECK=true"
-              "AUTHENTIK_DISABLE_STARTUP_ANALYTICS=true"
-              "AUTHENTIK_AVATARS=initials"
-            ];
             StateDirectory = "authentik";
             UMask = "0027";
             # TODO /run might be sufficient
