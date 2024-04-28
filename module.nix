@@ -27,7 +27,8 @@ let
     mkOption;
 
   inherit (lib.strings)
-    concatStringsSep;
+    concatStringsSep
+    versionOlder;
 
   inherit (lib.trivial)
     boolToString
@@ -184,7 +185,6 @@ in
         };
         postgresql = mkIf cfg.createDatabase {
           enable = true;
-          package = lib.mkDefault pkgs.postgresql_14;
           ensureDatabases = [ "authentik" ];
           ensureUsers = [
             { name = "authentik"; ensureDBOwnership = true; }
@@ -338,5 +338,29 @@ in
         };
       };
     }))
+
+    # This is an attempt to solve a rather ugly problem that was
+    # caused by previously setting a default for the option
+    # `services.postgresql.package` in this module.
+    #
+    # The problem is that some installations with a state version other than
+    # 22.05, 22.11 or 23.05 may have used this module, meaning their postgresql
+    # version was overridden by this module. Merely removing the setting here,
+    # would cause their config to fall back to their respective default release,
+    # resulting in a (temporarily) broken installation.
+    #
+    # While recovering from this is relatively easy, i.e. they would need to
+    # override the posgresql package in their own config, it is not desirable
+    # to break those installations.
+    #
+    # The idea is to no longer set a default value for the package for new
+    # installations. Instead new installations use the sensible default provided
+    # by nixpkgs. At the same time this should keep the previous default
+    # for old installations.
+    #
+    # After postgresql_14 has been removed from nixpkgs, this workaround can be dropped.
+    (mkIf (versionOlder config.system.stateVersion "24.05") {
+      services.postgresql.package = lib.mkDefault pkgs.postgresql_14;
+    })
   ];
 }
