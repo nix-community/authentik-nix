@@ -2,7 +2,7 @@
 , authentik-version
 , authentikComponents
 , buildNapalmPackage
-, nodejs_21
+, nodejs_22
 , applyPatches
 }:
 let
@@ -23,7 +23,7 @@ in
 buildNapalmPackage "${patched-src}/web" rec {
   version = authentik-version; # 0.0.0 specified upstream in package.json
   NODE_ENV = "production";
-  nodejs = nodejs_21;
+  nodejs = nodejs_22;
   preBuild = ''
     ln -sv ${authentikComponents.docs} ../website
   '';

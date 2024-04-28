@@ -1,13 +1,13 @@
 { authentik-src
 , authentik-version
 , buildNapalmPackage
-, nodejs_20
+, nodejs_22
 }:
 
 buildNapalmPackage "${authentik-src}/website" {
   version = authentik-version; # 0.0.0 specified upstream in package.json
   NODE_ENV = "production";
-  nodejs = nodejs_20;
+  nodejs = nodejs_22;
   npmCommands = [
     "cp -v ${authentik-src}/SECURITY.md ../SECURITY.md"
     "cp -vr ${authentik-src}/blueprints ../blueprints"
