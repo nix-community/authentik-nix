@@ -19,7 +19,8 @@ let
   inherit (lib.modules)
     mkDefault
     mkIf
-    mkMerge;
+    mkMerge
+    mkOverride;
 
   inherit (lib.options)
     mdDoc
@@ -354,7 +355,12 @@ in
     #
     # After postgresql_14 has been removed from nixpkgs, this workaround can be dropped.
     (mkIf (versionOlder config.system.stateVersion "24.05") {
-      services.postgresql.package = lib.mkDefault pkgs.postgresql_14;
+      # The upstream postgresl module is using mkDefault
+      # to specify the default value for the package option.
+      # Unfortunately this forces us to specify this default with
+      # a higher priority, i.e. lower number, than mkDefault which
+      # has priority 1000
+      services.postgresql.package = mkOverride 999 pkgs.postgresql_14;
     })
   ];
 }
