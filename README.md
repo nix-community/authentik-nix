@@ -159,10 +159,11 @@ Initial auto-discovery might take a while because the authentik certificate disc
 
 ## Testing
 
-To run the tests execute the following:
+To run the main integration test execute (one of) the following:
 
 ```
-nix flake check --print-build-logs
+nix build .#checks.x86_64-linux.default --print-build-logs
+nix build .#checks.aarch64-linux.default --print-build-logs
 ```
 
 ## License
