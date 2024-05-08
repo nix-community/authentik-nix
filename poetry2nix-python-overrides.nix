@@ -27,7 +27,6 @@ pkgs:
         nativeBuildInputs = oA.nativeBuildInputs ++ [
           final.setuptools
           final.tomli
-          final.cython-3
           pkgs.postgresql
         ];
       });
@@ -42,7 +41,7 @@ pkgs:
             src = oA.src;
             sourceRoot = "${oA.pname}-${oA.version}/src/rust";
             name = "${oA.pname}-${oA.version}";
-            sha256 = "sha256-qaXQiF1xZvv4sNIiR2cb5TfD7oNiYdvUwcm37nh2P2M=";
+            sha256 = "sha256-Pw3ftpcDMfZr/w6US5fnnyPVsFSB9+BuIKazDocYjTU=";
           };
       });
       dnspython = prev.dnspython.overrideAttrs (oA: {
@@ -65,33 +64,6 @@ pkgs:
         ];
         nativeBuildInputs = oA.nativeBuildInputs ++ [
           final.poetry-core
-        ];
-      });
-      # alias because lxml references cython_3 in nativeBuildInputs
-      cython_3 = final.cython-3;
-      #pyyaml = pkgs.python312.pkgs.pyyaml;
-      pyyaml = prev.pyyaml.overrideAttrs (oA:
-      let
-        # checks if derivation is cython with major version 3
-        isNotCython3 = drv:
-          let
-            drvInfo = builtins.parseDrvName drv.name;
-            isCython = pkgs.lib.hasSuffix "-cython" drvInfo.name;
-            isVersion3 = pkgs.lib.versions.major drvInfo.version == "3";
-          in
-          isCython -> !isVersion3;
-
-        # removes cython3 derivation from list
-        removeCython3 = builtins.filter isNotCython3;
-      in
-      {
-        # pyyaml 6.0.1 doesn't build with cython3, see upstream nixpkgs
-        nativeBuildInputs = (removeCython3 oA.nativeBuildInputs) ++ [
-          pkgs.python312Packages.cython_0
-          final.setuptools
-        ];
-        buildInputs = oA.buildInputs ++ [
-          pkgs.libyaml
         ];
       });
     }
