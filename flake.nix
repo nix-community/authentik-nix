@@ -93,18 +93,17 @@
             migrate
             manage;
 
-          # terraform provider
           terraform-provider-authentik = inputs.nixpkgs.legacyPackages.${system}.buildGo121Module rec {
             pname = "terraform-provider-authentik";
-            version = "2024.4.0";
+            version = "2024.4.1";
             src = pkgs.fetchFromGitHub {
               owner = "goauthentik";
               repo = pname;
               rev = "v${version}";
-              sha256 = "sha256-Uyh/XkAjukJwVBu43H9Eq8ve4eF3nfYsK0jC6KdfZ3U=";
+              sha256 = "sha256-+9egBupMRqAICzmw83gH9jg2nr7rBsfA3b7jRogKuPc=";
             };
             doCheck = false; # tests are run against authentik -> vm test
-            vendorHash = "sha256-HXrct5K7BjAdExVZM4o408YIqLQs3PeK0zwVAE93/PA=";
+            vendorHash = "sha256-8MD4yy5F9svqtc/i+skCiPtiLnVN8lXW2nvIEH30n2E=";
             postInstall = ''
               path="$out/libexec/terraform-providers/registry.terraform.io/goauthentik/authentik/${version}/''${GOOS}_''${GOARCH}/"
               mkdir -p "$path"
