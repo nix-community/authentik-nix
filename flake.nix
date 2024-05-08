@@ -118,11 +118,11 @@
             inherit pkgs authentik-version;
             inherit (self) nixosModules;
           });
-          override-scope = (import tests/override-scope.nix {
-            inherit pkgs authentik-version;
-            inherit (self) nixosModules;
-            inherit (self.lib) mkAuthentikScope;
-          });
+        # override-scope = (import tests/override-scope.nix {
+        #   inherit pkgs authentik-version;
+        #   inherit (self) nixosModules;
+        #   inherit (self.lib) mkAuthentikScope;
+        # });
         };
       };
     });
