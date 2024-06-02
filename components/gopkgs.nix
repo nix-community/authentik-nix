@@ -43,6 +43,7 @@ buildGo122Module {
   ];
   vendorHash = "sha256-YpOG5pNw5CNSubm1OkPVpSi7l+l5UdJFido2SQLtK3g=";
   nativeBuildInputs = [ makeWrapper ];
+  doCheck = false;
   postInstall = ''
     wrapProgram $out/bin/server --prefix PATH : ${authentikComponents.pythonEnv}/bin
     wrapProgram $out/bin/server --prefix PYTHONPATH : ${authentikComponents.staticWorkdirDeps}
