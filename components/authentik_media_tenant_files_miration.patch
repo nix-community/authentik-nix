@@ -9,7 +9,7 @@ index 40795d460..7ac1efb34 100644
 +from authentik.lib.config import CONFIG
  
 -MEDIA_ROOT = Path(__file__).parent.parent.parent / "media"
-+MEDIA_ROOT = Path(CONFIG.get("paths.media"))
++MEDIA_ROOT = Path(CONFIG.get("storage.media.file.path"))
  TENANT_MEDIA_ROOT = MEDIA_ROOT / "public"
  
  

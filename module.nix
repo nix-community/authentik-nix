@@ -29,6 +29,7 @@ let
 
   inherit (lib.strings)
     concatStringsSep
+    optionalString
     versionOlder;
 
   inherit (lib.trivial)
@@ -177,7 +178,12 @@ in
             host = mkDefault "";
           };
           cert_discovery_dir = mkIf (cfg.nginx.enable && cfg.nginx.enableACME) "env://CREDENTIALS_DIRECTORY";
-          paths.media = mkDefault "/var/lib/authentik/media";
+          storage.media = {
+            backend = mkDefault "file";
+            file = mkDefault {
+              path = "/var/lib/authentik/media";
+            };
+          };
           media.enable_upload = mkDefault true;
         };
         redis.servers.authentik = {
@@ -258,7 +264,9 @@ in
           restartTriggers = [ config.environment.etc."authentik/config.yml".source ];
           preStart = ''
             ln -svf ${cfg.authentikComponents.staticWorkdirDeps}/* /var/lib/authentik/
-            mkdir -p ${cfg.settings.paths.media}
+            ${optionalString (cfg.settings.storage.media.backend == "file") ''
+              mkdir -p ${cfg.settings.storage.media.file.path}
+            ''}
           '';
           environment.TZ = tz;
           serviceConfig = mkMerge [ serviceDefaults {
