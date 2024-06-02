@@ -5,6 +5,7 @@
 , defaultPoetryOverrides
 , mkPoetryEnv
 , pkgs
+, extraPatches ? []
 }:
 
 pkgs.lib.makeScope pkgs.newScope (final:
@@ -24,6 +25,7 @@ pkgs.lib.makeScope pkgs.newScope (final:
     };
     staticWorkdirDeps = final.callPackage ./staticWorkdirDeps.nix {
       inherit authentik-src;
+      inherit extraPatches;
     };
     migrate = final.callPackage ./migrate.nix {
       inherit authentik-src;

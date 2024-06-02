@@ -2,6 +2,7 @@
 , authentikComponents
 , linkFarm
 , applyPatches
+, extraPatches ? []
 }:
 let
   patched-src = applyPatches {
@@ -10,7 +11,7 @@ let
     patches = [
       ./authentik_media_upload.patch
       ./authentik_media_tenant_files_miration.patch
-    ];
+    ] ++ extraPatches;
   };
 in
 linkFarm "authentik-static-workdir-deps" [
