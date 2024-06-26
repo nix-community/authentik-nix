@@ -74,10 +74,11 @@
           mkPoetryEnv ? (import inputs.poetry2nix { inherit pkgs; }).mkPoetryEnv,
           defaultPoetryOverrides ? (import inputs.poetry2nix { inherit pkgs; }).defaultPoetryOverrides,
           authentikPoetryOverrides ? import ./poetry2nix-python-overrides.nix pkgs,
-          buildNapalmPackage ? napalm.legacyPackages.${system}.buildPackage
+          buildNapalmPackage ? napalm.legacyPackages.${system}.buildPackage,
+          extraPatches ? []
         }:
           import ./components {
-            inherit pkgs authentik-src authentik-version mkPoetryEnv defaultPoetryOverrides authentikPoetryOverrides buildNapalmPackage;
+            inherit extraPatches pkgs authentik-src authentik-version mkPoetryEnv defaultPoetryOverrides authentikPoetryOverrides buildNapalmPackage;
           };
       };
       perSystem = { pkgs, system, self', ... }: let
