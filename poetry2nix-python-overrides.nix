@@ -8,8 +8,9 @@ pkgs:
         nativeBuildInputs = (oA.nativeBuildInputs or []) ++ [ final.setuptools ];
       });
     }) [
-      "dumb-init"
+      "django-cte"
       "django-tenants"
+      "dumb-init"
     ]))
   )
   (final: prev: {
@@ -36,21 +37,21 @@ pkgs:
           final.hatch-fancy-pypi-readme
         ];
       });
-      cryptography = prev.cryptography.overridePythonAttrs (oA: {
-        cargoDeps = pkgs.rustPlatform.fetchCargoTarball {
-            src = oA.src;
-            sourceRoot = "${oA.pname}-${oA.version}/src/rust";
-            name = "${oA.pname}-${oA.version}";
-            sha256 = "sha256-Pw3ftpcDMfZr/w6US5fnnyPVsFSB9+BuIKazDocYjTU=";
-          };
-      });
+      #cryptography = prev.cryptography.overridePythonAttrs (oA: {
+      #  cargoDeps = pkgs.rustPlatform.fetchCargoTarball {
+      #      src = oA.src;
+      #      sourceRoot = "${oA.pname}-${oA.version}/src/rust";
+      #      name = "${oA.pname}-${oA.version}";
+      #      sha256 = "sha256-PgxPcFocEhnQyrsNtCN8YHiMptBmk1PUhEDQFdUR1nU=";
+      #    };
+      #});
       dnspython = prev.dnspython.overrideAttrs (oA: {
         buildInputs = oA.buildInputs ++ [
           final.hatchling
         ];
       });
       sqlparse = prev.sqlparse.overrideAttrs (oA: {
-        buildInputs = oA.buildInputs ++ [
+        nativeBuildInputs = oA.nativeBuildInputs ++ [
           final.hatchling
         ];
       });
@@ -62,6 +63,35 @@ pkgs:
             hash = "sha256-PjJH1S5CDe/BMI0+mB34KdpNNcHfexBFYBmHolsWH4o=";
           })
         ];
+        nativeBuildInputs = oA.nativeBuildInputs ++ [
+          final.poetry-core
+        ];
+      });
+      pendulum = prev.pendulum.overrideAttrs (oA: {
+        nativeBuildInputs = oA.nativeBuildInputs ++ [
+          pkgs.rustPlatform.cargoSetupHook
+          pkgs.rustPlatform.maturinBuildHook
+        ];
+        cargoRoot = "rust";
+        cargoDeps = pkgs.rustPlatform.fetchCargoTarball {
+          src = oA.src;
+          sourceRoot = "${oA.pname}-${oA.version}/rust";
+          name = "${oA.pname}-${oA.version}";
+          sha256 = "sha256-6fw0KgnPIMfdseWcunsGjvjVB+lJNoG3pLDqkORPJ0I=";
+        };
+      });
+      django-pgactivity = prev.django-pgactivity.overrideAttrs (oA: {
+        nativeBuildInputs = oA.nativeBuildInputs ++ [
+          final.poetry-core
+        ];
+      });
+      docker = prev.docker.overrideAttrs (oA: {
+        nativeBuildInputs = oA.nativeBuildInputs ++ [
+          prev.hatchling
+          prev.hatch-vcs
+        ];
+      });
+      django-pglock= prev.django-pglock.overrideAttrs (oA: {
         nativeBuildInputs = oA.nativeBuildInputs ++ [
           final.poetry-core
         ];
