@@ -11,28 +11,24 @@
 pkgs.lib.makeScope pkgs.newScope (final:
   let
     docs = final.callPackage ./docs.nix {
-      inherit authentik-src authentik-version buildNapalmPackage;
+      inherit authentik-version buildNapalmPackage;
     };
     frontend = final.callPackage ./frontend.nix {
-      inherit authentik-src authentik-version buildNapalmPackage;
+      inherit authentik-version buildNapalmPackage;
     };
     pythonEnv = final.callPackage ./pythonEnv.nix {
-      inherit authentik-src mkPoetryEnv defaultPoetryOverrides authentikPoetryOverrides;
+      inherit mkPoetryEnv defaultPoetryOverrides authentikPoetryOverrides;
     };
     # server + outposts
     gopkgs = final.callPackage ./gopkgs.nix {
-      inherit authentik-src authentik-version;
+      inherit authentik-version;
     };
     staticWorkdirDeps = final.callPackage ./staticWorkdirDeps.nix {
-      inherit authentik-src;
       inherit extraPatches;
     };
-    migrate = final.callPackage ./migrate.nix {
-      inherit authentik-src;
-    };
+    migrate = final.callPackage ./migrate.nix { };
     # worker
-    manage = final.callPackage ./manage.nix {
-    };
+    manage = final.callPackage ./manage.nix { };
   in
   {
     authentikComponents = {
