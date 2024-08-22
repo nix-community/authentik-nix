@@ -110,7 +110,7 @@ Add authentik-nix to your flake, import the module and configure it. Relevant se
 }
 ```
 
-## Without flakes
+### Without flakes
 
 All packages, modules and tests are available via flake-compat and may be used without flakes.
 This requires some extra work, but this example NixOS configuration may help you to get started:
@@ -167,6 +167,13 @@ To run the main integration test execute (one of) the following:
 nix build .#checks.x86_64-linux.default --print-build-logs
 nix build .#checks.aarch64-linux.default --print-build-logs
 ```
+
+## Binary Cache
+
+This project makes use of nix-community's [CI infrastructure](https://nix-community.org/continuous-integration/).
+The build artifacts from successful CI runs should be available from the corresponding Cachix instance:
+
+https://app.cachix.org/cache/nix-community
 
 ## License
 This project is released under the terms of the MIT License. See [LICENSE](./LICENSE).
