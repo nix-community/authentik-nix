@@ -11,6 +11,7 @@ pkgs:
       "django-cte"
       "django-tenants"
       "dumb-init"
+      "drf-orjson-renderer"
     ]))
   )
   (final: prev: {
@@ -94,6 +95,19 @@ pkgs:
       django-pglock= prev.django-pglock.overrideAttrs (oA: {
         nativeBuildInputs = oA.nativeBuildInputs ++ [
           final.poetry-core
+        ];
+      });
+      # https://github.com/pyradius/pyrad/pull/168/files
+      # not included in the latest release :/
+      pyrad = prev.pyrad.overrideAttrs (oA: {
+        postPatch = ''
+          substituteInPlace pyproject.toml \
+            --replace-fail "poetry.masonry.api" "poetry.core.masonry.api"
+        '';
+      });
+     msgraph-sdk = prev.msgraph-sdk.overrideAttrs (oA: {
+        nativeBuildInputs = oA.nativeBuildInputs ++ [
+          final.flit-core
         ];
       });
     }

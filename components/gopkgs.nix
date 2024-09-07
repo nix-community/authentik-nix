@@ -1,12 +1,12 @@
 { authentik-src
 , authentik-version
 , authentikComponents
-, buildGo122Module
+, buildGo123Module
 , lib
 , makeWrapper
 }:
 
-buildGo122Module {
+buildGo123Module {
   pname = "authentik-gopkgs";
   version = authentik-version;
   prePatch = ''
@@ -41,7 +41,7 @@ buildGo122Module {
     "cmd/proxy"
     "cmd/radius"
   ];
-  vendorHash = "sha256-BcL9QAc2jJqoPaQImJIFtCiu176nxmVcCLPjXjNBwqI=";
+  vendorHash = "sha256-xaVEyG5fNGh/zmXkewve5V2q2W7u+hqo27GqabAV9H0=";
   nativeBuildInputs = [ makeWrapper ];
   doCheck = false;
   postInstall = ''

@@ -20,6 +20,14 @@ buildNapalmPackage "${authentik-src}/website" {
     mv -v ../website $out
   '';
 
+  # upstream doesn't provide a fully resolved lock file
+  # see issues:
+  # - https://github.com/goauthentik/authentik/issues/6180
+  # - https://github.com/goauthentik/authentik/issues/11169
+  #
+  # see npm issue for the underlying issue:
+  # https://github.com/npm/cli/issues/4263
+  packageLock = ./docs-manually-resolved-package-lock.json;
 
   # These are lockfiles with extra deps that are required to successfully build
   # the module `paloaltonetworks/postman-code-generators`, that is getting
@@ -36,6 +44,19 @@ buildNapalmPackage "${authentik-src}/website" {
   # 2024.6 releases.
   #
   # (╯°□°）╯︵ ┻━┻)
+  #
+  # ---
+  # update 2024.8.0:
+  #
+  # The issue remains. However, now another package source  is used, namely
+  # https://github.com/postmanlabs/postman-code-generators at version v1.10.1
+  #
+  # Note:
+  # Alternatively it would be possible to drop this problematic dependency
+  # entirely, as is done in nixpkgs for the authentik build:
+  # https://github.com/NixOS/nixpkgs/blob/0037d6fe7143674afdfb35d1aad315605d883973/pkgs/by-name/au/authentik/package.nix#L53
+  # But this would differ from the upstream build and it's unclear what the impact is:
+  # https://github.com/goauthentik/authentik/blob/version/2024.8.1/Dockerfile#L20
   additionalPackageLocks =
     let
       files = builtins.readDir ./docs-extra-package-locks;
