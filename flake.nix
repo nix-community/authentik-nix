@@ -2,7 +2,11 @@
   description = "Nix package, NixOS module and VM integration test for authentik";
 
   inputs = {
-    flake-utils.url = "github:numtide/flake-utils";
+    systems.url = "github:nix-systems/default-linux";
+    flake-utils = {
+      url = "github:numtide/flake-utils";
+      inputs.systems.follows = "systems";
+    };
     flake-parts.url = "github:hercules-ci/flake-parts";
     flake-compat = {
       url = "github:edolstra/flake-compat";
@@ -17,6 +21,7 @@
       inputs = {
         nixpkgs.follows = "nixpkgs";
         flake-utils.follows = "flake-utils";
+        systems.follows = "systems";
       };
     };
     napalm = {
@@ -48,10 +53,7 @@
     let
       authentik-version = "2024.8.1"; # to pass to the drvs of some components
     in {
-      systems = [
-        "x86_64-linux"
-        "aarch64-linux" # not tested
-      ];
+      systems = import inputs.systems;
       flake = { self, ... }: {
         nixosModules.default = { pkgs, ... }: {
           imports = [ ./module.nix ];
