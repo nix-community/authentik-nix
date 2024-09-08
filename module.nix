@@ -229,6 +229,8 @@ in
               "${pkgs.coreutils}/bin/ln -svf ${cfg.authentikComponents.staticWorkdirDeps}/authentik"
             ];
             ExecStart = "${cfg.authentikComponents.migrate}/bin/migrate.py";
+            Restart = "on-failure";
+            RestartSec = "1s";
             inherit (config.systemd.services.authentik.serviceConfig) StateDirectory;
           } ];
         };
@@ -246,6 +248,8 @@ in
             RuntimeDirectory = "authentik";
             WorkingDirectory = "%t/authentik";
             ExecStart = "${cfg.authentikComponents.manage}/bin/manage.py worker";
+            Restart = "on-failure";
+            RestartSec = "1s";
             LoadCredential = mkIf (cfg.nginx.enable && cfg.nginx.enableACME) [
               "${cfg.nginx.host}.pem:${config.security.acme.certs.${cfg.nginx.host}.directory}/fullchain.pem"
               "${cfg.nginx.host}.key:${config.security.acme.certs.${cfg.nginx.host}.directory}/key.pem"
@@ -275,6 +279,8 @@ in
             # TODO /run might be sufficient
             WorkingDirectory = "%S/authentik";
             ExecStart = "${cfg.authentikComponents.gopkgs}/bin/server";
+            Restart = "on-failure";
+            RestartSec = "1s";
           } ];
         };
       };
