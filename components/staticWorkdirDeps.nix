@@ -9,7 +9,7 @@ let
     name = "patched-authentik-source";
     patches = [
       ./authentik_media_upload.patch
-      ./authentik_media_tenant_files_miration.patch
+      ./authentik_media_tenant_files_migration.patch
     ];
   };
 in
