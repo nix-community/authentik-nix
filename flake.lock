@@ -81,15 +81,16 @@
         ]
       },
       "locked": {
-        "lastModified": 1717929455,
-        "narHash": "sha256-BiI5xWygriOJuNISnGAeL0KYxrEMnjgpg+7wDskVBhI=",
-        "owner": "nix-community",
+        "lastModified": 1725806412,
+        "narHash": "sha256-lGZjkjds0p924QEhm/r0BhAxbHBJE1xMOldB/HmQH04=",
+        "owner": "willibutz",
         "repo": "napalm",
-        "rev": "e1babff744cd278b56abe8478008b4a9e23036cf",
+        "rev": "b492440d9e64ae20736d3bec5c7715ffcbde83f5",
         "type": "github"
       },
       "original": {
-        "owner": "nix-community",
+        "owner": "willibutz",
+        "ref": "avoid-foldl-stack-overflow",
         "repo": "napalm",
         "type": "github"
       }

@@ -25,7 +25,7 @@
       };
     };
     napalm = {
-      url = "github:nix-community/napalm";
+      url = "github:willibutz/napalm/avoid-foldl-stack-overflow";
       inputs = {
         nixpkgs.follows = "nixpkgs";
         flake-utils.follows = "flake-utils";
