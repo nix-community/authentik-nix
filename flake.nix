@@ -13,7 +13,7 @@
       flake = false;
     };
 
-    # nixos-unstable required for go 1.22, until 24.05 release
+    # nixos-unstable required for go 1.23, until 24.11 release
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
 
     poetry2nix = {
