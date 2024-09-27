@@ -22,8 +22,11 @@ pkgs:
       opencontainers = prev.opencontainers.overrideAttrs (oA: {
         nativeBuildInputs = oA.nativeBuildInputs ++ [
           final.setuptools
-          final.pytest-runner final.pytest
+          final.pytest
         ];
+        postPatch = ''
+          substituteInPlace setup.py --replace-fail '"pytest-runner"' '''
+        '';
       });
       psycopg-c = prev.psycopg-c.overrideAttrs (oA: {
         nativeBuildInputs = oA.nativeBuildInputs ++ [
