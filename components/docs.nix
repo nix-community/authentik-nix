@@ -20,15 +20,6 @@ buildNapalmPackage "${authentik-src}/website" {
     mv -v ../website $out
   '';
 
-  # upstream doesn't provide a fully resolved lock file
-  # see issues:
-  # - https://github.com/goauthentik/authentik/issues/6180
-  # - https://github.com/goauthentik/authentik/issues/11169
-  #
-  # see npm issue for the underlying issue:
-  # https://github.com/npm/cli/issues/4263
-  packageLock = ./docs-manually-resolved-package-lock.json;
-
   # These are lockfiles with extra deps that are required to successfully build
   # the module `paloaltonetworks/postman-code-generators`, that is getting
   # pulled in by `docusaurus-theme-openapi-doc`.
