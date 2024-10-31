@@ -109,10 +109,32 @@ pkgs:
         '';
       });
      msgraph-sdk = prev.msgraph-sdk.overrideAttrs (oA: {
-        nativeBuildInputs = oA.nativeBuildInputs ++ [
-          final.flit-core
-        ];
-      });
+       nativeBuildInputs = oA.nativeBuildInputs ++ [
+         final.flit-core
+       ];
+     });
+     python-kadmin = prev.python-kadmin.overrideAttrs (oA: {
+       nativeBuildInputs = oA.nativeBuildInputs ++ [
+         final.setuptools
+         final.poetry-core
+       ];
+       buildInputs = oA.buildInputs ++ [
+         pkgs.krb5
+       ];
+       pythonImportsCheck = [ "kadmin" ];
+     });
+     gssapi = prev.gssapi.overrideAttrs (oA: {
+       nativeBuildInputs = oA.nativeBuildInputs ++ [
+         final.setuptools
+         final.cython
+         pkgs.krb5 # needs krb5-config
+       ];
+       postPatch = ''
+         substituteInPlace setup.py \
+           --replace-fail 'get_output(f"{kc} gssapi --prefix")' '"${pkgs.krb5.dev}"'
+       '';
+       pythonImportsCheck = [ "gssapi" ];
+     });
     }
   )
 ]

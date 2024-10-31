@@ -41,7 +41,7 @@ buildGo123Module {
     "cmd/proxy"
     "cmd/radius"
   ];
-  vendorHash = "sha256-xaVEyG5fNGh/zmXkewve5V2q2W7u+hqo27GqabAV9H0=";
+  vendorHash = "sha256-x5y+3s4PkiE5HieXOHNaMPPvSwhh8gJ73JkfQps1/nU=";
   nativeBuildInputs = [ makeWrapper ];
   doCheck = false;
   postInstall = ''
