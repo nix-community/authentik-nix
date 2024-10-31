@@ -12,7 +12,7 @@ mkPoetryEnv {
   overrides = [
     defaultPoetryOverrides
   ] ++ authentikPoetryOverrides;
-  groups = [];
+  groups = ["main"];
   checkGroups = [];
   # workaround to remove dev-dependencies for the current combination of legacy
   # used by authentik and poetry2nix's behavior
