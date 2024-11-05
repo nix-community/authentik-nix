@@ -3,16 +3,16 @@
     "authentik-src": {
       "flake": false,
       "locked": {
-        "lastModified": 1730324748,
-        "narHash": "sha256-nhQl16FBK5eFSvBnwyDzmSQnJsIigRQpOxYtPlDPBxk=",
+        "lastModified": 1730826392,
+        "narHash": "sha256-EuNOfMy7yVa1OqWwCtNtmdeIQeQCTCKBXgJdz0QCPIU=",
         "owner": "goauthentik",
         "repo": "authentik",
-        "rev": "6ce33ab912d764a87ec75876febcd57a6355f3c8",
+        "rev": "665de8ef2211524f3cc13dce9344bd59c61c3a5c",
         "type": "github"
       },
       "original": {
         "owner": "goauthentik",
-        "ref": "version/2024.10.0",
+        "ref": "version/2024.10.1",
         "repo": "authentik",
         "type": "github"
       }
