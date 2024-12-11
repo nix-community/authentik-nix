@@ -23,7 +23,6 @@ let
     mkOverride;
 
   inherit (lib.options)
-    mdDoc
     mkEnableOption
     mkOption;
 
@@ -66,7 +65,7 @@ in
         host = mkOption {
           type = types.str;
           example = "auth.example.com";
-          description = mdDoc ''
+          description = ''
             Specify the name for the server in {option}`services.nginx.virtualHosts` and
             for the associated Let's Encrypt certificate.
           '';
@@ -77,7 +76,7 @@ in
         type = types.nullOr types.path;
         default = null;
         example = "/run/secrets/authentik/authentik-env";
-        description = mdDoc ''
+        description = ''
           Environment file as defined in {manpage}`systemd.exec(5)`.
 
           Secrets may be passed to the service without adding them to the world-readable
@@ -101,7 +100,7 @@ in
         type = types.nullOr types.path;
         default = null;
         example = "/run/secrets/authentik-ldap/authentik-ldap-env";
-        description = mdDoc ''
+        description = ''
           Environment file as defined in {manpage}`systemd.exec(5)`.
 
           Secrets may be passed to the service without adding them to the world-readable
@@ -124,7 +123,7 @@ in
         type = types.nullOr types.path;
         default = null;
         example = "/run/secrets/authentik-radius/authentik-radius-env";
-        description = mdDoc ''
+        description = ''
           Environment file as defined in {manpage}`systemd.exec(5)`.
 
           Secrets may be passed to the service without adding them to the world-readable
