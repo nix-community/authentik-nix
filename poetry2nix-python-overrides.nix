@@ -113,27 +113,43 @@ pkgs:
          final.flit-core
        ];
      });
-     python-kadmin = prev.python-kadmin.overrideAttrs (oA: {
+     python-kadmin-rs = prev.python-kadmin-rs.overrideAttrs (oA: {
+       pythonImportsCheck = [ "kadmin" ];
        nativeBuildInputs = oA.nativeBuildInputs ++ [
+         pkgs.rustPlatform.cargoSetupHook
+         pkgs.rustc
+         pkgs.cargo
          final.setuptools
-         final.poetry-core
+         final.setuptools-scm
+         final.setuptools-rust
+         pkgs.sccache
+         pkgs.pkg-config
+         pkgs.rustPlatform.bindgenHook
+         pkgs.libkrb5
        ];
        buildInputs = oA.buildInputs ++ [
          pkgs.krb5
        ];
-       pythonImportsCheck = [ "kadmin" ];
+       cargoDeps = pkgs.rustPlatform.fetchCargoTarball {
+         inherit (oA) pname version src;
+         hash = "sha256-iH2fm4OUwLdx+lqmPNOkzM3LH6gBVYDtZ+livhOQrE4=";
+       };
      });
      gssapi = prev.gssapi.overrideAttrs (oA: {
        nativeBuildInputs = oA.nativeBuildInputs ++ [
          final.setuptools
          final.cython
-         pkgs.krb5 # needs krb5-config
+         pkgs.krb5
        ];
        postPatch = ''
          substituteInPlace setup.py \
            --replace-fail 'get_output(f"{kc} gssapi --prefix")' '"${pkgs.krb5.dev}"'
        '';
        pythonImportsCheck = [ "gssapi" ];
+     });
+     # break dependency cycle that causes an infinite recursion
+     ua-parser-builtins = prev.ua-parser-builtins.overridePythonAttrs (oA: {
+       propagatedBuildInputs = builtins.filter (p: p.pname != "ua-parser") oA.propagatedBuildInputs;
      });
     }
   )
