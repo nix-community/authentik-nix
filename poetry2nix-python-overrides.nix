@@ -18,6 +18,7 @@ pkgs:
       xmlsec = prev.xmlsec.overridePythonAttrs (oA: {
         nativeBuildInputs = oA.nativeBuildInputs ++ [ final.setuptools final.pkgconfig ];
         buildInputs = [ pkgs.xmlsec.dev pkgs.xmlsec pkgs.libxml2 pkgs.libtool ];
+        env.NIX_CFLAGS_COMPILE = "-Wno-error=incompatible-pointer-types";
       });
       opencontainers = prev.opencontainers.overrideAttrs (oA: {
         nativeBuildInputs = oA.nativeBuildInputs ++ [
