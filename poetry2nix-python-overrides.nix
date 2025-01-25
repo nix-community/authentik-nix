@@ -106,7 +106,8 @@ pkgs:
       pyrad = prev.pyrad.overrideAttrs (oA: {
         postPatch = ''
           substituteInPlace pyproject.toml \
-            --replace-fail "poetry.masonry.api" "poetry.core.masonry.api"
+            --replace-fail "poetry.masonry.api" "poetry.core.masonry.api" \
+            --replace-fail "repository =" "Repository ="
         '';
       });
      msgraph-sdk = prev.msgraph-sdk.overrideAttrs (oA: {
