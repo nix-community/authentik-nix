@@ -16,10 +16,6 @@ jobs:
           diagnostic-endpoint: ""
           source-url: "https://install.lix.systems/lix/lix-installer-x86_64-linux"
 
-      - uses: DeterminateSystems/magic-nix-cache-action@b46e247b898aa56e6d2d2e728dc6df6c84fdb738
-        with:
-          diagnostic-endpoint: ""
-
       - run: nix flake check --log-format raw-with-logs -L
 
 env:
