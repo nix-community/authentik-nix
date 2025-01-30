@@ -51,7 +51,7 @@ Example configuration:
 
 The `environmentFile` option references a systemd [EnvironmentFile](https://www.freedesktop.org/software/systemd/man/systemd.exec.html#EnvironmentFile=), that needs to be placed on the same host as authentik and should only be accessible to root. Secrets can be specified in this environment file without causing them to be placed in the world-readable /nix/store. Note that `pkgs.writeText` and similar tooling also causes secrets to be placed in the /nix/store.
 
-After generating a secret key for authentik, for example using `openssl rand -base64 32` the file's contents should look like this:
+After generating a secret key for authentik, for example using `openssl rand -base64 60` the file's contents should look like this:
 
 ```
 AUTHENTIK_SECRET_KEY=<generated secret key>
