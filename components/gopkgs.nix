@@ -1,9 +1,10 @@
-{ authentik-src
-, authentik-version
-, authentikComponents
-, buildGo123Module
-, lib
-, makeWrapper
+{
+  authentik-src,
+  authentik-version,
+  authentikComponents,
+  buildGo123Module,
+  lib,
+  makeWrapper,
 }:
 
 buildGo123Module {
@@ -16,15 +17,15 @@ buildGo123Module {
   '';
   src = lib.cleanSourceWith {
     src = authentik-src;
-    filter = (path: _:
+    filter = (
+      path: _:
       (builtins.any (x: x) (
         (map (infix: lib.hasInfix infix path) [
           "/authentik"
           "/cmd"
           "/internal"
         ])
-        ++
-        (map (suffix: lib.hasSuffix suffix path) [
+        ++ (map (suffix: lib.hasSuffix suffix path) [
           "/web"
           "/web/static.go"
           "/web/robots.txt"

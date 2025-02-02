@@ -1,20 +1,21 @@
-{ pkgs
-, authentik-version
-, nixosModules
-, mkAuthentikScope
+{
+  pkgs,
+  authentik-version,
+  nixosModules,
+  mkAuthentikScope,
 }:
 
 /*
- * This is just meant as a demonstration on how to override the scope which includes the
- * authentik components. This is an extended version of ./minimal-vmtest.nix
- *
- * First, a new scope is created from the default one using `overrideScope` on the result
- * from `mkAuthentikScope`.
- * Components with overrides in that scope are used by their dependents, i.e. dependents
- * of `pythonEnv` (e.g. gopkgs) also pull in that overridden `pythonEnv`
- * Then, that scope is passed to the module via the `services.authentik.authentikComponents` option
- * And finally, the test script checks if the patched welcome string is present.
- */
+  This is just meant as a demonstration on how to override the scope which includes the
+  authentik components. This is an extended version of ./minimal-vmtest.nix
+
+  First, a new scope is created from the default one using `overrideScope` on the result
+  from `mkAuthentikScope`.
+  Components with overrides in that scope are used by their dependents, i.e. dependents
+  of `pythonEnv` (e.g. gopkgs) also pull in that overridden `pythonEnv`
+  Then, that scope is passed to the module via the `services.authentik.authentikComponents` option
+  And finally, the test script checks if the patched welcome string is present.
+*/
 
 let
   # use a root-owned EnvironmentFile in production instead (services.authentik.environmentFile)
@@ -26,22 +27,25 @@ let
 
   # creates a new scope using python 3.12 for mkPoetryEnv
   # and overrides the welcome string for the default oobe intial-setup flow
-  customScope = (mkAuthentikScope { inherit pkgs; }).overrideScope
-    (final: prev: {
+  customScope = (mkAuthentikScope { inherit pkgs; }).overrideScope (
+    final: prev: {
       authentikComponents = prev.authentikComponents // {
         pythonEnv = prev.authentikComponents.pythonEnv.overrideAttrs (_: {
           python = pkgs.python312;
         });
         staticWorkdirDeps = prev.authentikComponents.staticWorkdirDeps.overrideAttrs (oA: {
-          buildCommand = oA.buildCommand + ''
-            rm -v $out/blueprints
-            cp -vr ${prev.authentik-src}/blueprints $out/blueprints
-            substituteInPlace $out/blueprints/default/flow-oobe.yaml \
-              --replace "Welcome to authentik" "${customWelcome}"
-          '';
+          buildCommand =
+            oA.buildCommand
+            + ''
+              rm -v $out/blueprints
+              cp -vr ${prev.authentik-src}/blueprints $out/blueprints
+              substituteInPlace $out/blueprints/default/flow-oobe.yaml \
+                --replace "Welcome to authentik" "${customWelcome}"
+            '';
         });
       };
-    });
+    }
+  );
 in
 pkgs.nixosTest {
   name = "authentik";
@@ -117,7 +121,7 @@ pkgs.nixosTest {
         machine.succeed("su - alice -c 'xdotool key --delay 100 Page_Down' >&2")
         # sometimes the cursor covers the version string
         machine.succeed("su - alice -c 'xdotool mousemove_relative 50 50' >&2")
-        machine.wait_for_text("${builtins.replaceStrings ["."] [".?"] authentik-version}")
+        machine.wait_for_text("${builtins.replaceStrings [ "." ] [ ".?" ] authentik-version}")
         machine.screenshot("4_correct_version_in_admin_interface")
 
     with subtest("nginx proxies to authentik"):

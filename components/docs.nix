@@ -1,7 +1,8 @@
-{ authentik-src
-, authentik-version
-, buildNapalmPackage
-, nodejs_22
+{
+  authentik-src,
+  authentik-version,
+  buildNapalmPackage,
+  nodejs_22,
 }:
 
 buildNapalmPackage "${authentik-src}/website" {
@@ -52,8 +53,7 @@ buildNapalmPackage "${authentik-src}/website" {
     let
       files = builtins.readDir ./docs-extra-package-locks;
     in
-    builtins.concatMap (f:
-      if files.${f} == "regular"
-      then [ (./docs-extra-package-locks + "/${f}") ] else []
+    builtins.concatMap (
+      f: if files.${f} == "regular" then [ (./docs-extra-package-locks + "/${f}") ] else [ ]
     ) (builtins.attrNames files);
 }

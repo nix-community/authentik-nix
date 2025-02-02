@@ -1,7 +1,8 @@
-{ authentik-src
-, authentikComponents
-, linkFarm
-, applyPatches
+{
+  authentik-src,
+  authentikComponents,
+  linkFarm,
+  applyPatches,
 }:
 let
   patched-src = applyPatches {
@@ -14,11 +15,32 @@ let
   };
 in
 linkFarm "authentik-static-workdir-deps" [
-  { name = "authentik"; path = "${patched-src}/authentik"; }
-  { name = "locale"; path = "${authentik-src}/locale"; }
-  { name = "blueprints"; path = "${authentik-src}/blueprints"; }
-  { name = "internal"; path = "${authentik-src}/internal"; }
-  { name = "lifecycle"; path = "${patched-src}/lifecycle"; }
-  { name = "schemas"; path = "${authentik-src}/schemas"; }
-  { name = "web"; path = authentikComponents.frontend; }
+  {
+    name = "authentik";
+    path = "${patched-src}/authentik";
+  }
+  {
+    name = "locale";
+    path = "${authentik-src}/locale";
+  }
+  {
+    name = "blueprints";
+    path = "${authentik-src}/blueprints";
+  }
+  {
+    name = "internal";
+    path = "${authentik-src}/internal";
+  }
+  {
+    name = "lifecycle";
+    path = "${patched-src}/lifecycle";
+  }
+  {
+    name = "schemas";
+    path = "${authentik-src}/schemas";
+  }
+  {
+    name = "web";
+    path = authentikComponents.frontend;
+  }
 ]

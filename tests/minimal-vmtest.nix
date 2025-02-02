@@ -1,6 +1,7 @@
-{ pkgs
-, authentik-version
-, nixosModules
+{
+  pkgs,
+  authentik-version,
+  nixosModules,
 }:
 let
   # use a root-owned EnvironmentFile in production instead (services.authentik.environmentFile)
@@ -80,7 +81,7 @@ pkgs.nixosTest {
         machine.succeed("su - alice -c 'xdotool key --delay 100 Page_Down' >&2")
         # sometimes the cursor covers the version string
         machine.succeed("su - alice -c 'xdotool mousemove_relative 50 50' >&2")
-        machine.wait_for_text("${builtins.replaceStrings ["."] [".?"] authentik-version}")
+        machine.wait_for_text("${builtins.replaceStrings [ "." ] [ ".?" ] authentik-version}")
         machine.screenshot("4_correct_version_in_admin_interface")
 
     with subtest("nginx proxies to authentik"):

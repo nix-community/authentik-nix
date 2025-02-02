@@ -1,8 +1,9 @@
-{ authentik-src
-, authentik-version
-, authentikComponents
-, buildNapalmPackage
-, nodejs_22
+{
+  authentik-src,
+  authentik-version,
+  authentikComponents,
+  buildNapalmPackage,
+  nodejs_22,
 }:
 buildNapalmPackage "${authentik-src}/web" rec {
   version = authentik-version; # 0.0.0 specified upstream in package.json
