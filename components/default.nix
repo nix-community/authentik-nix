@@ -1,36 +1,25 @@
-{ authentik-src
-, authentik-version
-, authentikPoetryOverrides
-, buildNapalmPackage
-, defaultPoetryOverrides
-, mkPoetryEnv
-, pkgs
+{
+  authentik-src,
+  authentik-version,
+  authentikPoetryOverrides,
+  buildNapalmPackage,
+  defaultPoetryOverrides,
+  mkPoetryEnv,
+  pkgs,
 }:
 
-pkgs.lib.makeScope pkgs.newScope (final:
+pkgs.lib.makeScope pkgs.newScope (
+  final:
   let
-    docs = final.callPackage ./docs.nix {
-      inherit authentik-src authentik-version buildNapalmPackage;
-    };
-    frontend = final.callPackage ./frontend.nix {
-      inherit authentik-src authentik-version buildNapalmPackage;
-    };
-    pythonEnv = final.callPackage ./pythonEnv.nix {
-      inherit authentik-src mkPoetryEnv defaultPoetryOverrides authentikPoetryOverrides;
-    };
+    docs = final.callPackage ./docs.nix { };
+    frontend = final.callPackage ./frontend.nix { };
+    pythonEnv = final.callPackage ./pythonEnv.nix { };
     # server + outposts
-    gopkgs = final.callPackage ./gopkgs.nix {
-      inherit authentik-src authentik-version;
-    };
-    staticWorkdirDeps = final.callPackage ./staticWorkdirDeps.nix {
-      inherit authentik-src;
-    };
-    migrate = final.callPackage ./migrate.nix {
-      inherit authentik-src;
-    };
+    gopkgs = final.callPackage ./gopkgs.nix { };
+    staticWorkdirDeps = final.callPackage ./staticWorkdirDeps.nix { };
+    migrate = final.callPackage ./migrate.nix { };
     # worker
-    manage = final.callPackage ./manage.nix {
-    };
+    manage = final.callPackage ./manage.nix { };
   in
   {
     authentikComponents = {
@@ -41,8 +30,16 @@ pkgs.lib.makeScope pkgs.newScope (final:
         gopkgs
         staticWorkdirDeps
         migrate
-        manage;
+        manage
+        ;
     };
-    inherit authentik-src authentik-version;
+    inherit
+      authentik-src
+      authentik-version
+      buildNapalmPackage
+      mkPoetryEnv
+      defaultPoetryOverrides
+      authentikPoetryOverrides
+      ;
   }
 )

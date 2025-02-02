@@ -115,7 +115,9 @@ pkgs.nixosTest {
         machine.screenshot("3_rendered_admin_interface")
         machine.succeed("su - alice -c 'xdotool click 1' >&2")
         machine.succeed("su - alice -c 'xdotool key --delay 100 Page_Down' >&2")
-        machine.wait_for_text("${authentik-version}")
+        # sometimes the cursor covers the version string
+        machine.succeed("su - alice -c 'xdotool mousemove_relative 50 50' >&2")
+        machine.wait_for_text("${builtins.replaceStrings ["."] [".?"] authentik-version}")
         machine.screenshot("4_correct_version_in_admin_interface")
 
     with subtest("nginx proxies to authentik"):
