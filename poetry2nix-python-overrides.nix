@@ -90,11 +90,11 @@ pkgs: [
         pkgs.rustPlatform.maturinBuildHook
       ];
       cargoRoot = "rust";
-      cargoDeps = pkgs.rustPlatform.fetchCargoTarball {
+      cargoDeps = pkgs.rustPlatform.fetchCargoVendor {
         src = oA.src;
         sourceRoot = "${oA.pname}-${oA.version}/rust";
         name = "${oA.pname}-${oA.version}";
-        sha256 = "sha256-6fw0KgnPIMfdseWcunsGjvjVB+lJNoG3pLDqkORPJ0I=";
+        hash = "sha256-6WgGIfz9I+xRJqXWhjfGDZM1umYwVlUEpLAiecZNZmI=";
       };
     });
     django-pgactivity = prev.django-pgactivity.overrideAttrs (oA: {
@@ -144,9 +144,9 @@ pkgs: [
       buildInputs = oA.buildInputs ++ [
         pkgs.krb5
       ];
-      cargoDeps = pkgs.rustPlatform.fetchCargoTarball {
+      cargoDeps = pkgs.rustPlatform.fetchCargoVendor {
         inherit (oA) pname version src;
-        hash = "sha256-iH2fm4OUwLdx+lqmPNOkzM3LH6gBVYDtZ+livhOQrE4=";
+        hash = "sha256-1J2aaEj/G7TE+EptWNwb5Vj048W6DOJNUBWPd9F4DqU=";
       };
     });
     gssapi = prev.gssapi.overrideAttrs (oA: {
@@ -164,6 +164,18 @@ pkgs: [
     # break dependency cycle that causes an infinite recursion
     ua-parser-builtins = prev.ua-parser-builtins.overridePythonAttrs (oA: {
       propagatedBuildInputs = builtins.filter (p: p.pname != "ua-parser") oA.propagatedBuildInputs;
+    });
+    rpds-py = prev.rpds-py.overridePythonAttrs (oA: {
+      cargoDeps = pkgs.rustPlatform.fetchCargoVendor {
+        inherit (oA) src pname version;
+        hash = "sha256-vfx0ZbIgH5UvL1JMYeJIToY35w2axiHngBt5FJUih7c=";
+      };
+    });
+    watchfiles = prev.watchfiles.overridePythonAttrs (oA: {
+      cargoDeps = pkgs.rustPlatform.fetchCargoVendor {
+        inherit (oA) src pname version;
+        hash = "sha256-EuH6svw8eOEpLJYLx+4RFUTTClqfPN07Vc0cjlWoCXw=";
+      };
     });
   })
 ]
