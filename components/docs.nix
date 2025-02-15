@@ -18,7 +18,9 @@ buildNapalmPackage "${authentik-src}/website" {
   ];
   installPhase = ''
     rm -r ../website/node_modules/.cache
+    rm -f ../website/static/blueprints
     mv -v ../website $out
+    cp -vr ../blueprints $out/static/blueprints
   '';
 
   # These are lockfiles with extra deps that are required to successfully build
