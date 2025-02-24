@@ -54,14 +54,14 @@ pkgs: [
         final.hatch-fancy-pypi-readme
       ];
     });
-    #cryptography = prev.cryptography.overridePythonAttrs (oA: {
-    #  cargoDeps = pkgs.rustPlatform.fetchCargoTarball {
-    #      src = oA.src;
-    #      sourceRoot = "${oA.pname}-${oA.version}/src/rust";
-    #      name = "${oA.pname}-${oA.version}";
-    #      sha256 = "sha256-PgxPcFocEhnQyrsNtCN8YHiMptBmk1PUhEDQFdUR1nU=";
-    #    };
-    #});
+    cryptography = prev.cryptography.overridePythonAttrs (oA: {
+      cargoDeps = pkgs.rustPlatform.fetchCargoVendor {
+        src = oA.src;
+        sourceRoot = "${oA.pname}-${oA.version}";
+        name = "${oA.pname}-${oA.version}";
+        hash = "sha256-hjfSjmwd/mylVZKyXsj/pP2KvAGDpfthuT+w219HAiA=";
+      };
+    });
     dnspython = prev.dnspython.overrideAttrs (oA: {
       buildInputs = oA.buildInputs ++ [
         final.hatchling
