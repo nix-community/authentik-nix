@@ -3,16 +3,16 @@
     "authentik-src": {
       "flake": false,
       "locked": {
-        "lastModified": 1738183650,
-        "narHash": "sha256-4XdYlqfd23TVPaJ0R5tEBIpDXLV4mFHdXhIWp5dIvIE=",
+        "lastModified": 1740398117,
+        "narHash": "sha256-eafk3lCFG3l1OKt8xoKZjbDFcOUFQgpivMMT4GjaNWU=",
         "owner": "goauthentik",
         "repo": "authentik",
-        "rev": "f1b7a9f934e6b58a1884ba753575eac6267f4b6e",
+        "rev": "5c5cc1c7daa4248c5a2c29ac47f3639d4eaa8ff5",
         "type": "github"
       },
       "original": {
         "owner": "goauthentik",
-        "ref": "version/2024.12.3",
+        "ref": "version/2025.2.0",
         "repo": "authentik",
         "type": "github"
       }
@@ -159,11 +159,11 @@
         "treefmt-nix": "treefmt-nix"
       },
       "locked": {
-        "lastModified": 1738741221,
-        "narHash": "sha256-UiTOA89yQV5YNlO1ZAp4IqJUGWOnTyBC83netvt8rQE=",
+        "lastModified": 1739883580,
+        "narHash": "sha256-3ydikhrNaWy8j0cqHju/94PcD4GZ9T4Ju4rHh34oz3k=",
         "owner": "nix-community",
         "repo": "poetry2nix",
-        "rev": "be1fe795035d3d36359ca9135b26dcc5321b31fb",
+        "rev": "d90f9db68a4bda31c346be16dfd8d3263be4547e",
         "type": "github"
       },
       "original": {

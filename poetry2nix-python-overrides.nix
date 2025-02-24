@@ -130,23 +130,23 @@ pkgs: [
     python-kadmin-rs = prev.python-kadmin-rs.overrideAttrs (oA: {
       pythonImportsCheck = [ "kadmin" ];
       nativeBuildInputs = oA.nativeBuildInputs ++ [
-        pkgs.rustPlatform.cargoSetupHook
-        pkgs.rustc
-        pkgs.cargo
         final.setuptools
-        final.setuptools-scm
         final.setuptools-rust
-        pkgs.sccache
+        final.setuptools-scm
+        pkgs.cargo
+        pkgs.libkrb5
         pkgs.pkg-config
         pkgs.rustPlatform.bindgenHook
-        pkgs.libkrb5
+        pkgs.rustPlatform.cargoSetupHook
+        pkgs.rustc
+        pkgs.sccache
       ];
       buildInputs = oA.buildInputs ++ [
         pkgs.krb5
       ];
       cargoDeps = pkgs.rustPlatform.fetchCargoVendor {
         inherit (oA) pname version src;
-        hash = "sha256-1J2aaEj/G7TE+EptWNwb5Vj048W6DOJNUBWPd9F4DqU=";
+        hash = "sha256-9LCtsX3fuRXCHu5Gd+7OB5JQZ0h6KjSOSan83KUivLQ=";
       };
     });
     gssapi = prev.gssapi.overrideAttrs (oA: {
@@ -176,6 +176,34 @@ pkgs: [
         inherit (oA) src pname version;
         hash = "sha256-EuH6svw8eOEpLJYLx+4RFUTTClqfPN07Vc0cjlWoCXw=";
       };
+    });
+    microsoft-kiota-abstractions = prev.microsoft-kiota-abstractions.overridePythonAttrs (oA: {
+      nativeBuildInputs = oA.nativeBuildInputs ++ [ final.poetry-core ];
+      pythonImportsCheck = [ "kiota_abstractions" ];
+    });
+    microsoft-kiota-serialization-form = prev.microsoft-kiota-serialization-form.overridePythonAttrs (oA: {
+      nativeBuildInputs = oA.nativeBuildInputs ++ [ final.poetry-core ];
+      pythonImportsCheck = [ "kiota_serialization_form" ];
+    });
+    microsoft-kiota-serialization-text = prev.microsoft-kiota-serialization-text.overridePythonAttrs (oA: {
+      nativeBuildInputs = oA.nativeBuildInputs ++ [ final.poetry-core ];
+      pythonImportsCheck = [ "kiota_serialization_text" ];
+    });
+    microsoft-kiota-serialization-json = prev.microsoft-kiota-serialization-json.overridePythonAttrs (oA: {
+      nativeBuildInputs = oA.nativeBuildInputs ++ [ final.poetry-core ];
+      pythonImportsCheck = [ "kiota_serialization_json" ];
+    });
+    microsoft-kiota-serialization-multipart = prev.microsoft-kiota-serialization-multipart.overridePythonAttrs (oA: {
+      nativeBuildInputs = oA.nativeBuildInputs ++ [ final.poetry-core ];
+      pythonImportsCheck = [ "kiota_serialization_multipart" ];
+    });
+    microsoft-kiota-http = prev.microsoft-kiota-http.overridePythonAttrs (oA: {
+      nativeBuildInputs = oA.nativeBuildInputs ++ [ final.poetry-core ];
+      pythonImportsCheck = [ "kiota_http" ];
+    });
+    microsoft-kiota-authentication-azure = prev.microsoft-kiota-authentication-azure.overridePythonAttrs (oA: {
+      nativeBuildInputs = oA.nativeBuildInputs ++ [ final.poetry-core ];
+      pythonImportsCheck = [ "kiota_authentication_azure" ];
     });
   })
 ]
