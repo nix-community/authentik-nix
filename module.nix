@@ -123,6 +123,29 @@ in
       };
     };
 
+    # RAC oupost
+    authentik-rac = {
+      enable = mkEnableOption "authentik RAC outpost";
+
+      environmentFile = mkOption {
+        type = types.nullOr types.path;
+        default = null;
+        example = "/run/secrets/authentik-rac/authentik-rac-env";
+        description = ''
+          Environment file as defined in {manpage}`systemd.exec(5)`.
+
+          Secrets may be passed to the service without adding them to the world-readable
+          /nix/store, by specifying the desied secrets as environment variables according
+          to the authentic documentation.
+
+          ```
+            # example content
+            AUTHENTIK_TOKEN=<token from authentik for this outpost>
+          ```
+        '';
+      };
+    };
+
     # RADIUS oupost
     authentik-radius = {
       enable = mkEnableOption "authentik RADIUS outpost";
@@ -346,6 +369,33 @@ in
             ExecStart = "${config.services.authentik.authentikComponents.gopkgs}/bin/ldap";
             EnvironmentFile = mkIf (cfg.environmentFile != null) [ cfg.environmentFile ];
             Restart = "on-failure";
+          };
+        };
+      }
+    ))
+
+    # RAC outpost
+    (mkIf config.services.authentik-rac.enable (
+      let
+        cfg = config.services.authentik-rac;
+      in
+      {
+        systemd.services.authentik-rac = {
+          wantedBy = [ "multi-user.target" ];
+          wants = [ "network-online.target" ];
+          after = [
+            "network-online.target"
+            "authentik.service"
+          ];
+          serviceConfig = {
+            RuntimeDirectory = "authentik-rac";
+            UMask = "0027";
+            WorkingDirectory = "%t/authentik-rac";
+            DynamicUser = true;
+            ExecStart = "${config.services.authentik.authentikComponents.gopkgs}/bin/rac";
+            EnvironmentFile = mkIf (cfg.environmentFile != null) [ cfg.environmentFile ];
+            Restart = "on-failure";
+            BindReadOnlyPaths = "${lib.getExe pkgs.guacamole-server}:/opt/guacamole/sbin/guacd";
           };
         };
       }

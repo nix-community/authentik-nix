@@ -41,6 +41,7 @@ buildGo123Module {
     "cmd/server"
     "cmd/proxy"
     "cmd/radius"
+    "cmd/rac"
   ];
   vendorHash = "sha256-aG/VqpmHJeGyF98aS0jgwEAq1R5c8VggeJxLWS9W8HY=";
   nativeBuildInputs = [ makeWrapper ];
