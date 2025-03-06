@@ -204,6 +204,29 @@ in
       };
     };
 
+    # RAC oupost
+    authentik-rac = {
+      enable = mkEnableOption "authentik RAC outpost";
+
+      environmentFile = mkOption {
+        type = types.nullOr pathToSecret;
+        default = null;
+        example = "/run/secrets/authentik-rac/authentik-rac-env";
+        description = ''
+          Environment file as defined in {manpage}`systemd.exec(5)`.
+
+          Secrets may be passed to the service without adding them to the world-readable
+          /nix/store, by specifying the desied secrets as environment variables according
+          to the authentic documentation.
+
+          ```
+          # example content
+          AUTHENTIK_TOKEN=<token from authentik for this outpost>
+          ```
+        '';
+      };
+    };
+
     # RADIUS oupost
     authentik-radius = {
       enable = mkEnableOption "authentik RADIUS outpost";
@@ -490,6 +513,40 @@ in
             WorkingDirectory = "%t/authentik-proxy";
             DynamicUser = true;
             ExecStart = "${config.services.authentik.authentikComponents.gopkgs.proxy}/bin/proxy";
+            EnvironmentFile = mkIf (cfg.environmentFile != null) [ cfg.environmentFile ];
+            Restart = "on-failure";
+          };
+        };
+      }
+    ))
+
+    # RAC outpost
+    (mkIf config.services.authentik-rac.enable (
+      let
+        cfg = config.services.authentik-rac;
+      in
+      {
+        assertions = [
+          {
+            assertion = config.services.authentik.authentikComponents.gopkgs?rac;
+            message = ''
+              guacamole-server is not available on the host's platform!
+            '';
+          }
+        ];
+        systemd.services.authentik-rac = {
+          wantedBy = [ "multi-user.target" ];
+          wants = [ "network-online.target" ];
+          after = [
+            "network-online.target"
+            "authentik.service"
+          ];
+          serviceConfig = {
+            RuntimeDirectory = "authentik-rac";
+            UMask = "0027";
+            WorkingDirectory = "%t/authentik-rac";
+            DynamicUser = true;
+            ExecStart = "${config.services.authentik.authentikComponents.gopkgs.rac}/bin/rac";
             EnvironmentFile = mkIf (cfg.environmentFile != null) [ cfg.environmentFile ];
             Restart = "on-failure";
           };
