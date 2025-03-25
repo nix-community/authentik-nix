@@ -92,9 +92,9 @@ in
           to the authentic documentation.
 
           ```
-            # example content
-            AUTHENTIK_SECRET_KEY=<secret key>
-            AUTHENTIK_EMAIL__PASSWORD=<smtp password>
+          # example content
+          AUTHENTIK_SECRET_KEY=<secret key>
+          AUTHENTIK_EMAIL__PASSWORD=<smtp password>
           ```
         '';
       };
@@ -116,8 +116,8 @@ in
           to the authentic documentation.
 
           ```
-            # example content
-            AUTHENTIK_TOKEN=<token from authentik for this outpost>
+          # example content
+          AUTHENTIK_TOKEN=<token from authentik for this outpost>
           ```
         '';
       };
@@ -139,8 +139,8 @@ in
           to the authentic documentation.
 
           ```
-            # example content
-            AUTHENTIK_TOKEN=<token from authentik for this outpost>
+          # example content
+          AUTHENTIK_TOKEN=<token from authentik for this outpost>
           ```
         '';
       };
