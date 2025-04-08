@@ -44,6 +44,11 @@ let
     ;
 
   settingsFormat = pkgs.formats.yaml { };
+
+  pathToSecret = types.pathWith {
+    inStore = false;
+    absolute = true;
+  };
 in
 {
   options.services = {
@@ -81,7 +86,7 @@ in
       };
 
       environmentFile = mkOption {
-        type = types.nullOr types.path;
+        type = types.nullOr pathToSecret;
         default = null;
         example = "/run/secrets/authentik/authentik-env";
         description = ''
@@ -105,7 +110,7 @@ in
       enable = mkEnableOption "authentik LDAP outpost";
 
       environmentFile = mkOption {
-        type = types.nullOr types.path;
+        type = types.nullOr pathToSecret;
         default = null;
         example = "/run/secrets/authentik-ldap/authentik-ldap-env";
         description = ''
@@ -128,7 +133,7 @@ in
       enable = mkEnableOption "authentik RADIUS outpost";
 
       environmentFile = mkOption {
-        type = types.nullOr types.path;
+        type = types.nullOr pathToSecret;
         default = null;
         example = "/run/secrets/authentik-radius/authentik-radius-env";
         description = ''
