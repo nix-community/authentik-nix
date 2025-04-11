@@ -3,12 +3,6 @@
   authentik-version,
   nixosModules,
 }:
-let
-  # use a root-owned EnvironmentFile in production instead (services.authentik.environmentFile)
-  authentik-env = pkgs.writeText "authentik-test-secret-env" ''
-    AUTHENTIK_SECRET_KEY=thissecretwillbeinthenixstore
-  '';
-in
 pkgs.nixosTest {
   name = "authentik";
   nodes = {
@@ -23,9 +17,13 @@ pkgs.nixosTest {
         "${pkgs.path}/nixos/tests/common/x11.nix"
       ];
 
+      systemd.tmpfiles.rules = [
+        "f /etc/authentik.env 0700 root root - AUTHENTIK_SECRET_KEY=thissecretwillnotbeinthenixstore"
+      ];
+
       services.authentik = {
         enable = true;
-        environmentFile = authentik-env;
+        environmentFile = "/etc/authentik.env";
         nginx = {
           enable = true;
           host = "localhost";
