@@ -62,6 +62,21 @@ pkgs: [
         hash = "sha256-hjfSjmwd/mylVZKyXsj/pP2KvAGDpfthuT+w219HAiA=";
       };
     });
+    bcrypt = prev.bcrypt.overridePythonAttrs (oA: {
+      cargoDeps = pkgs.rustPlatform.fetchCargoVendor {
+        inherit (oA) src;
+        sourceRoot = "${oA.pname}-${oA.version}/src/_bcrypt";
+        name = "${oA.pname}-${oA.version}";
+        hash = "sha256-TD1Qacr2BS3CutGzDcUSweTrlMuKy0U/eIS/oBLxTlI=";
+      };
+    });
+    orjson = prev.orjson.overridePythonAttrs (oA: {
+      cargoDeps = pkgs.rustPlatform.fetchCargoVendor {
+        inherit (oA) src;
+        name = "${oA.pname}-${oA.version}";
+        hash = "sha256-FONzOuF+FU4gKesnqyVOwy0Z9abIF2kv/GHM+pwaCJs=";
+      };
+    });
     dnspython = prev.dnspython.overrideAttrs (oA: {
       buildInputs = oA.buildInputs ++ [
         final.hatchling
