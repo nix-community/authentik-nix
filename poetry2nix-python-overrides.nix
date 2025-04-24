@@ -45,7 +45,10 @@ pkgs: [
       nativeBuildInputs = oA.nativeBuildInputs ++ [
         final.setuptools
         final.tomli
-        pkgs.postgresql
+        pkgs.libpq.pg_config
+      ];
+      buildInputs = oA.buildInputs ++ [
+        pkgs.libpq
       ];
     });
     twisted = prev.twisted.overrideAttrs (oA: {
