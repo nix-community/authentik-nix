@@ -17,7 +17,6 @@ buildNapalmPackage "${authentik-src}/website" {
     "npm run build-bundled"
   ];
   installPhase = ''
-    rm -r ../website/node_modules/.cache
     rm -f ../website/static/blueprints
     mv -v ../website $out
     cp -vr ../blueprints $out/static/blueprints

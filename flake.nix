@@ -13,16 +13,26 @@
       flake = false;
     };
 
+    pyproject-nix = {
+      url = "github:pyproject-nix/pyproject.nix";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
+    uv2nix = {
+      url = "github:pyproject-nix/uv2nix";
+      inputs.pyproject-nix.follows = "pyproject-nix";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
+    pyproject-build-systems = {
+      url = "github:pyproject-nix/build-system-pkgs";
+      inputs.pyproject-nix.follows = "pyproject-nix";
+      inputs.uv2nix.follows = "uv2nix";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
 
-    poetry2nix = {
-      url = "github:nix-community/poetry2nix";
-      inputs = {
-        nixpkgs.follows = "nixpkgs";
-        flake-utils.follows = "flake-utils";
-        systems.follows = "systems";
-      };
-    };
     napalm = {
       url = "github:willibutz/napalm/avoid-foldl-stack-overflow";
       inputs = {
@@ -32,7 +42,7 @@
     };
     authentik-src = {
       # change version string in outputs as well when updating
-      url = "github:goauthentik/authentik/version/2025.2.4";
+      url = "github:goauthentik/authentik/version/2025.4.0";
       flake = false;
     };
   };
@@ -40,11 +50,12 @@
   outputs =
     inputs@{
       self,
-      nixpkgs,
       flake-parts,
-      poetry2nix,
       napalm,
       authentik-src,
+      uv2nix,
+      pyproject-build-systems,
+      pyproject-nix,
       ...
     }:
 
@@ -56,7 +67,7 @@
         ...
       }:
       let
-        authentik-version = "2025.2.4"; # to pass to the drvs of some components
+        authentik-version = "2025.4.0"; # to pass to the drvs of some components
       in
       {
         systems = import inputs.systems;
@@ -98,23 +109,36 @@
               {
                 pkgs,
                 system ? pkgs.stdenv.hostPlatform.system,
+                python ? pkgs.python312,
                 authentik-version ? authentik-version',
-                mkPoetryEnv ? (import inputs.poetry2nix { inherit pkgs; }).mkPoetryEnv,
-                defaultPoetryOverrides ? (import inputs.poetry2nix { inherit pkgs; }).defaultPoetryOverrides,
-                authentikPoetryOverrides ? import ./poetry2nix-python-overrides.nix pkgs,
                 buildNapalmPackage ? napalm.legacyPackages.${system}.buildPackage,
               }:
-              import ./components {
+              pkgs.lib.makeScope pkgs.newScope (final: {
+                authentikComponents = {
+                  docs = final.callPackage ./components/docs.nix { };
+                  frontend = final.callPackage ./components/frontend.nix { };
+                  pythonEnv = final.callPackage ./components/pythonEnv.nix { };
+                  # server + outposts
+                  gopkgs = final.callPackage ./components/gopkgs.nix { };
+                  staticWorkdirDeps = final.callPackage ./components/staticWorkdirDeps.nix { };
+                  migrate = final.callPackage ./components/migrate.nix { };
+                  # worker
+                  manage = final.callPackage ./components/manage.nix { };
+                };
+
+                # for uv2nix
+                pythonOverlay = final.callPackage ./components/python-overrides.nix { };
+
                 inherit
-                  pkgs
                   authentik-src
                   authentik-version
-                  mkPoetryEnv
-                  defaultPoetryOverrides
-                  authentikPoetryOverrides
                   buildNapalmPackage
+                  uv2nix
+                  pyproject-build-systems
+                  pyproject-nix
+                  python
                   ;
-              };
+              });
           };
         perSystem =
           {

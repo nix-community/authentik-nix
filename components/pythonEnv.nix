@@ -1,25 +1,30 @@
 {
-  authentik-src,
-  authentikPoetryOverrides,
-  defaultPoetryOverrides,
   lib,
-  mkPoetryEnv,
-  python312,
+  callPackage,
+  authentik-src,
+  uv2nix,
+  pythonOverlay,
+  python,
+  pyproject-nix,
+  pyproject-build-systems,
 }:
 
-mkPoetryEnv {
-  projectDir = authentik-src;
-  python = python312;
-  overrides = [
-    defaultPoetryOverrides
-  ] ++ authentikPoetryOverrides;
-  groups = [ "main" ];
-  checkGroups = [ ];
-  # workaround to remove dev-dependencies for the current combination of legacy
-  # used by authentik and poetry2nix's behavior
-  pyproject = builtins.toFile "patched-pyproject.toml" (
-    lib.replaceStrings [ "tool.poetry.dev-dependencies" ] [ "tool.poetry.group.dev.dependencies" ] (
-      builtins.readFile "${authentik-src}/pyproject.toml"
-    )
-  );
-}
+let
+  workspace = uv2nix.lib.workspace.loadWorkspace { workspaceRoot = authentik-src; };
+  projectOverlay = workspace.mkPyprojectOverlay {
+    sourcePreference = "wheel";
+  };
+
+  pythonSet =
+    (callPackage pyproject-nix.build.packages {
+      inherit python;
+    }).overrideScope
+      (
+        lib.composeManyExtensions [
+          pyproject-build-systems.overlays.default
+          projectOverlay
+          pythonOverlay
+        ]
+      );
+in
+pythonSet.mkVirtualEnv "authentik-env" (workspace.deps.default)
