@@ -2,6 +2,12 @@
   lib,
   krb5,
   libpq,
+  libxslt,
+  libxml2,
+  zlib,
+  libtool,
+  pkg-config,
+  xmlsec,
 }:
 
 let
@@ -21,6 +27,11 @@ let
           setuptools = [ ];
           cython = [ ];
         };
+        lxml = {
+          setuptools = [ ];
+          cython = [ ];
+        };
+        xmlsec.setuptools = [ ];
       };
       inherit (final) resolveBuildSystem;
     in
@@ -61,6 +72,40 @@ let
         nativeBuildInputs = nativeBuildInputs ++ [
           libpq.pg_config
         ];
+      }
+    );
+    lxml = prev.lxml.overrideAttrs (
+      {
+        buildInputs ? [ ],
+        ...
+      }:
+      {
+        buildInputs = buildInputs ++ [
+          libxslt
+          libxml2
+          zlib
+        ];
+      }
+    );
+    xmlsec = prev.xmlsec.overrideAttrs (
+      {
+        buildInputs ? [ ],
+        nativeBuildInputs ? [ ],
+        propagatedBuildInputs ? [ ],
+        ...
+      }:
+      {
+        buildInputs = buildInputs ++ [
+          libtool
+          libxslt
+          libxml2
+          xmlsec
+        ];
+        nativeBuildInputs = nativeBuildInputs ++ [
+          final.pkgconfig
+          pkg-config
+        ];
+        propagatedBuildInputs = propagatedBuildInputs ++ [ final.lxml ];
       }
     );
   };
