@@ -36,6 +36,12 @@ buildGo124Module {
       ))
     );
   };
+  outputs = [
+    "out"
+    "ldap"
+    "proxy"
+    "radius"
+  ];
   subPackages = [
     "cmd/ldap"
     "cmd/server"
@@ -48,5 +54,10 @@ buildGo124Module {
   postInstall = ''
     wrapProgram $out/bin/server --prefix PATH : ${authentikComponents.pythonEnv}/bin
     wrapProgram $out/bin/server --prefix PYTHONPATH : ${authentikComponents.staticWorkdirDeps}
+
+    mkdir -p $ldap/bin $proxy/bin $radius/bin
+    mv $out/bin/ldap $ldap/bin/
+    mv $out/bin/proxy $proxy/bin/
+    mv $out/bin/radius $radius/bin/
   '';
 }
