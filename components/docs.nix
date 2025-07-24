@@ -50,6 +50,22 @@ buildNapalmPackage "${authentik-src}/website" {
   # https://github.com/NixOS/nixpkgs/blob/0037d6fe7143674afdfb35d1aad315605d883973/pkgs/by-name/au/authentik/package.nix#L53
   # But this would differ from the upstream build and it's unclear what the impact is:
   # https://github.com/goauthentik/authentik/blob/version/2024.8.1/Dockerfile#L20
+  # 
+  # How to update:
+  # These instructions may need some adjustment and are only a best effort bash 
+  # translation of the nushell operations. Please correct or better create 
+  # a script to automate this.
+  # 
+  # - remove everything from the docs-extra-package-locks folder
+  # - get the postman-code-generators version from the website/package-lock.json
+  # $ git clone https://github.com/postmanlabs/postman-code-generators
+  # $ cd postman-code-generators
+  # $ git checkout v[version-from-lockfile]
+  # $ cd codegens/ 
+  # $ for f in **/npm-shrinkfile.json; do cp "$f" "[this projects root]/comonents/docs-extra-package-locks/${f//\//-}"
+  #
+  #
+
   additionalPackageLocks =
     let
       files = builtins.readDir ./docs-extra-package-locks;
