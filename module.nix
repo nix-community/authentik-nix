@@ -196,13 +196,17 @@ in
             # `systemd-run(1)` in order to spin up an environment with correct (dynamic) user,
             # state directory and environment to run `ak` inside.
             (k: vs: map (v: "--property ${k}=${if isBool v then boolToString v else toString v}") (toList vs))
-            # Read serviceDefaults from `authentik.service`. That way, module system primitives (mk*)
-            # can be used inside `serviceDefaults` and it doesn't need to be evaluated here again.
+            # Read properties from `authentik.service`. That way, users can customize the properties using
+            # module system primitives and the like.
             (
-              getAttrs (attrNames serviceDefaults) config.systemd.services.authentik.serviceConfig
-              // {
-                StateDirectory = "authentik";
-              }
+              removeAttrs config.systemd.services.authentik.serviceConfig [
+                "ExecStart"
+                "ExecStartPre"
+                "Restart"
+                "RestartSec"
+                # systemd-run doesn't expand the %S specifier, so this is passed separately below.
+                "WorkingDirectory"
+              ]
             )
         );
       in
