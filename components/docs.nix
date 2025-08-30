@@ -13,8 +13,10 @@ buildNapalmPackage "${authentik-src}/website" {
     "cp -v ${authentik-src}/SECURITY.md ../SECURITY.md"
     "cp -vr ${authentik-src}/blueprints ../blueprints"
     "cp -v ${authentik-src}/schema.yml ../schema.yml"
-    "npm install --include=dev"
-    "npm run build-bundled"
+    "cp -v ${authentik-src}/docker-compose.yml ../docker-compose.yml"
+    "npm config set loglevel verbose"
+    "npm ci --workspaces --include-workspace-root --no-audit"
+    "npm run build"
   ];
   installPhase = ''
     rm -f ../website/static/blueprints

@@ -17,8 +17,9 @@ buildNapalmPackage "${authentik-src}/web" rec {
   # from release build dependencies, therefore this workaround
   CHROMEDRIVER_SKIP_DOWNLOAD = "true";
   npmCommands = [
-    "npm install --include=dev --nodedir=${nodejs}/include/node --loglevel verbose"
+    "npm install --include=dev --nodedir=${nodejs}/include/node --loglevel verbose --ignore-scripts"
     "npm run build"
+    "npm run build:sfe"
   ];
   installPhase = ''
     mkdir $out
