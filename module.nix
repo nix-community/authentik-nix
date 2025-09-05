@@ -185,10 +185,14 @@ in
         tz = "UTC";
 
         # Passed to each service and to the `ak` wrapper using `systemd-run(1)`
+        environment.PROMETHEUS_MULTIPROC_DIR = "%S/authentik/prometheus";
         serviceDefaults = {
           DynamicUser = true;
           User = "authentik";
           EnvironmentFile = mkIf (cfg.environmentFile != null) [ cfg.environmentFile ];
+          ExecStartPre = [
+            "${pkgs.coreutils}/bin/mkdir -p \${PROMETHEUS_MULTIPROC_DIR}"
+          ];
         };
         akOptions = flatten (
           mapAttrsToList
@@ -265,7 +269,7 @@ in
             after = [ "network-online.target" ] ++ lib.optionals cfg.createDatabase [ "postgresql.service" ];
             before = [ "authentik.service" ];
             restartTriggers = [ config.environment.etc."authentik/config.yml".source ];
-            environment.TZ = tz;
+            environment = mkMerge [ environment { TZ = tz; } ];
             serviceConfig = mkMerge [
               serviceDefaults
               {
@@ -293,13 +297,13 @@ in
             preStart = ''
               ln -svf ${config.services.authentik.authentikComponents.staticWorkdirDeps}/* /run/authentik/
             '';
-            environment.TZ = tz;
+            environment = mkMerge [ environment { TZ = tz; } ];
             serviceConfig = mkMerge [
               serviceDefaults
               {
                 RuntimeDirectory = "authentik";
                 WorkingDirectory = "%t/authentik";
-                ExecStart = "${cfg.authentikComponents.manage}/bin/manage.py worker";
+                ExecStart = "${cfg.authentikComponents.manage}/bin/manage.py worker --pid-file %t/authentik/worker.pid";
                 Restart = "on-failure";
                 RestartSec = "1s";
                 LoadCredential = mkIf (cfg.nginx.enable && cfg.nginx.enableACME) [
@@ -325,7 +329,7 @@ in
                 mkdir -p ${cfg.settings.storage.media.file.path}
               ''}
             '';
-            environment.TZ = tz;
+            environment = mkMerge [ environment { TZ = tz; } ];
             serviceConfig = mkMerge [
               serviceDefaults
               {
