@@ -263,7 +263,6 @@ in
 
         systemd.services = {
           authentik-migrate = {
-            requiredBy = [ "authentik.service" ];
             requires = lib.optionals cfg.createDatabase [ "postgresql.service" ];
             wants = [ "network-online.target" ];
             after = [ "network-online.target" ] ++ lib.optionals cfg.createDatabase [ "postgresql.service" ];
@@ -289,7 +288,6 @@ in
             ];
           };
           authentik-worker = {
-            requiredBy = [ "authentik.service" ];
             wants = [ "network-online.target" ];
             after = [ "network-online.target" ];
             before = [ "authentik.service" ];
@@ -318,6 +316,10 @@ in
           authentik = {
             wantedBy = [ "multi-user.target" ];
             wants = [ "network-online.target" ];
+            requires = [
+              "authentik-migrate.service"
+              "authentik-worker.service"
+            ];
             after = [
               "network-online.target"
               "redis-authentik.service"
