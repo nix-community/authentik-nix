@@ -103,6 +103,25 @@ in
           ```
         '';
       };
+
+      worker = {
+        listenHTTP = mkOption {
+          type = types.str;
+          default = "[::1]:9001";
+          description = ''
+            Listen address for the HTTP server of the worker.
+            Overrides the default listen setting that's also used by the server.
+          '';
+        };
+        listenMetrics = mkOption {
+          type = types.str;
+          default = "[::1]:9301";
+          description = ''
+            Listen address for the metrics server of the worker.
+            Overrides the default listen setting that's also used by the server.
+          '';
+        };
+      };
     };
 
     # LDAP oupost
@@ -295,7 +314,14 @@ in
             preStart = ''
               ln -svf ${config.services.authentik.authentikComponents.staticWorkdirDeps}/* /run/authentik/
             '';
-            environment = mkMerge [ environment { TZ = tz; } ];
+            environment = mkMerge [
+              environment
+              {
+                TZ = tz;
+                AUTHENTIK_LISTEN__LISTEN_HTTP = cfg.worker.listenHTTP;
+                AUTHENTIK_LISTEN__LISTEN_METRICS = cfg.worker.listenMetrics;
+              }
+            ];
             serviceConfig = mkMerge [
               serviceDefaults
               {
