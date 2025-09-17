@@ -287,7 +287,10 @@ in
             after = [ "network-online.target" ] ++ lib.optionals cfg.createDatabase [ "postgresql.service" ];
             before = [ "authentik.service" "authentik-migrate.service" ];
             restartTriggers = [ config.environment.etc."authentik/config.yml".source ];
-            environment = mkMerge [ environment { TZ = tz; } ];
+            environment = mkMerge [
+              environment
+              { TZ = tz; }
+            ];
             serviceConfig = mkMerge [
               serviceDefaults
               {
@@ -349,7 +352,8 @@ in
             after = [
               "network-online.target"
               "redis-authentik.service"
-            ] ++ (lib.optionals cfg.createDatabase [ "postgresql.service" ]);
+            ]
+            ++ (lib.optionals cfg.createDatabase [ "postgresql.service" ]);
             restartTriggers = [ config.environment.etc."authentik/config.yml".source ];
             preStart = ''
               ln -svf ${cfg.authentikComponents.staticWorkdirDeps}/* /var/lib/authentik/
@@ -357,7 +361,10 @@ in
                 mkdir -p ${cfg.settings.storage.media.file.path}
               ''}
             '';
-            environment = mkMerge [ environment { TZ = tz; } ];
+            environment = mkMerge [
+              environment
+              { TZ = tz; }
+            ];
             serviceConfig = mkMerge [
               serviceDefaults
               {
