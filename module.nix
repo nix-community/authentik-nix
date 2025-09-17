@@ -128,6 +128,15 @@ in
     authentik-ldap = {
       enable = mkEnableOption "authentik LDAP outpost";
 
+      listenMetrics = mkOption {
+        type = types.str;
+        default = "[::1]:9302";
+        description = ''
+          Listen address for the metrics server of the LDAP outpost.
+          Overrides the default listen setting that's also used by the server.
+        '';
+      };
+
       environmentFile = mkOption {
         type = types.nullOr pathToSecret;
         default = null;
@@ -151,6 +160,31 @@ in
     authentik-proxy = {
       enable = mkEnableOption "authentik Proxy outpost";
 
+      listenMetrics = mkOption {
+        type = types.str;
+        default = "[::1]:9303";
+        description = ''
+          Listen address for the metrics server of the proxy outpost.
+          Overrides the default listen setting that's also used by the server.
+        '';
+      };
+      listenHTTPS = mkOption {
+        type = types.str;
+        default = "[::1]:9004";
+        description = ''
+          Listen address for the HTTPS server of the proxy outpost.
+          Overrides the default listen setting that's also used by the server.
+        '';
+      };
+      listenHTTP = mkOption {
+        type = types.str;
+        default = "[::1]:9005";
+        description = ''
+          Listen address for the HTTP server of the proxy outpost.
+          Overrides the default listen setting that's also used by the server.
+        '';
+      };
+
       environmentFile = mkOption {
         type = types.nullOr pathToSecret;
         default = null;
@@ -173,6 +207,15 @@ in
     # RADIUS oupost
     authentik-radius = {
       enable = mkEnableOption "authentik RADIUS outpost";
+
+      listenMetrics = mkOption {
+        type = types.str;
+        default = "[::1]:9306";
+        description = ''
+          Listen address for the metrics server of the RADIUS outpost.
+          Overrides the default listen setting that's also used by the server.
+        '';
+      };
 
       environmentFile = mkOption {
         type = types.nullOr pathToSecret;
@@ -409,6 +452,7 @@ in
             "network-online.target"
             "authentik.service"
           ];
+          environment.AUTHENTIK_LISTEN__METRICS = cfg.listenMetrics;
           serviceConfig = {
             RuntimeDirectory = "authentik-ldap";
             UMask = "0027";
@@ -435,6 +479,11 @@ in
             "network-online.target"
             "authentik.service"
           ];
+          environment = {
+            AUTHENTIK_LISTEN__METRICS = cfg.listenMetrics;
+            AUTHENTIK_LISTEN__HTTP = cfg.listenHTTP;
+            AUTHENTIK_LISTEN__HTTPS = cfg.listenHTTPS;
+          };
           serviceConfig = {
             RuntimeDirectory = "authentik-proxy";
             UMask = "0027";
@@ -461,6 +510,7 @@ in
             "network-online.target"
             "authentik.service"
           ];
+          environment.AUTHENTIK_LISTEN__METRICS = cfg.listenMetrics;
           serviceConfig = {
             RuntimeDirectory = "authentik-radius";
             UMask = "0027";
