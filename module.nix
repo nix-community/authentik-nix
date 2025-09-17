@@ -266,7 +266,7 @@ in
             requires = lib.optionals cfg.createDatabase [ "postgresql.service" ];
             wants = [ "network-online.target" ];
             after = [ "network-online.target" ] ++ lib.optionals cfg.createDatabase [ "postgresql.service" ];
-            before = [ "authentik.service" ];
+            before = [ "authentik.service" "authentik-migrate.service" ];
             restartTriggers = [ config.environment.etc."authentik/config.yml".source ];
             environment = mkMerge [ environment { TZ = tz; } ];
             serviceConfig = mkMerge [
