@@ -103,11 +103,39 @@ in
           ```
         '';
       };
+
+      worker = {
+        listenHTTP = mkOption {
+          type = types.str;
+          default = "[::1]:9001";
+          description = ''
+            Listen address for the HTTP server of the worker.
+            Overrides the default listen setting that's also used by the server.
+          '';
+        };
+        listenMetrics = mkOption {
+          type = types.str;
+          default = "[::1]:9301";
+          description = ''
+            Listen address for the metrics server of the worker.
+            Overrides the default listen setting that's also used by the server.
+          '';
+        };
+      };
     };
 
     # LDAP oupost
     authentik-ldap = {
       enable = mkEnableOption "authentik LDAP outpost";
+
+      listenMetrics = mkOption {
+        type = types.str;
+        default = "[::1]:9302";
+        description = ''
+          Listen address for the metrics server of the LDAP outpost.
+          Overrides the default listen setting that's also used by the server.
+        '';
+      };
 
       environmentFile = mkOption {
         type = types.nullOr pathToSecret;
@@ -132,6 +160,31 @@ in
     authentik-proxy = {
       enable = mkEnableOption "authentik Proxy outpost";
 
+      listenMetrics = mkOption {
+        type = types.str;
+        default = "[::1]:9303";
+        description = ''
+          Listen address for the metrics server of the proxy outpost.
+          Overrides the default listen setting that's also used by the server.
+        '';
+      };
+      listenHTTPS = mkOption {
+        type = types.str;
+        default = "[::1]:9004";
+        description = ''
+          Listen address for the HTTPS server of the proxy outpost.
+          Overrides the default listen setting that's also used by the server.
+        '';
+      };
+      listenHTTP = mkOption {
+        type = types.str;
+        default = "[::1]:9005";
+        description = ''
+          Listen address for the HTTP server of the proxy outpost.
+          Overrides the default listen setting that's also used by the server.
+        '';
+      };
+
       environmentFile = mkOption {
         type = types.nullOr pathToSecret;
         default = null;
@@ -154,6 +207,15 @@ in
     # RADIUS oupost
     authentik-radius = {
       enable = mkEnableOption "authentik RADIUS outpost";
+
+      listenMetrics = mkOption {
+        type = types.str;
+        default = "[::1]:9306";
+        description = ''
+          Listen address for the metrics server of the RADIUS outpost.
+          Overrides the default listen setting that's also used by the server.
+        '';
+      };
 
       environmentFile = mkOption {
         type = types.nullOr pathToSecret;
@@ -263,13 +325,15 @@ in
 
         systemd.services = {
           authentik-migrate = {
-            requiredBy = [ "authentik.service" ];
             requires = lib.optionals cfg.createDatabase [ "postgresql.service" ];
             wants = [ "network-online.target" ];
             after = [ "network-online.target" ] ++ lib.optionals cfg.createDatabase [ "postgresql.service" ];
-            before = [ "authentik.service" ];
+            before = [ "authentik.service" "authentik-migrate.service" ];
             restartTriggers = [ config.environment.etc."authentik/config.yml".source ];
-            environment = mkMerge [ environment { TZ = tz; } ];
+            environment = mkMerge [
+              environment
+              { TZ = tz; }
+            ];
             serviceConfig = mkMerge [
               serviceDefaults
               {
@@ -289,7 +353,6 @@ in
             ];
           };
           authentik-worker = {
-            requiredBy = [ "authentik.service" ];
             wants = [ "network-online.target" ];
             after = [ "network-online.target" ];
             before = [ "authentik.service" ];
@@ -297,7 +360,14 @@ in
             preStart = ''
               ln -svf ${config.services.authentik.authentikComponents.staticWorkdirDeps}/* /run/authentik/
             '';
-            environment = mkMerge [ environment { TZ = tz; } ];
+            environment = mkMerge [
+              environment
+              {
+                TZ = tz;
+                AUTHENTIK_LISTEN__LISTEN_HTTP = cfg.worker.listenHTTP;
+                AUTHENTIK_LISTEN__LISTEN_METRICS = cfg.worker.listenMetrics;
+              }
+            ];
             serviceConfig = mkMerge [
               serviceDefaults
               {
@@ -318,10 +388,15 @@ in
           authentik = {
             wantedBy = [ "multi-user.target" ];
             wants = [ "network-online.target" ];
+            requires = [
+              "authentik-migrate.service"
+              "authentik-worker.service"
+            ];
             after = [
               "network-online.target"
               "redis-authentik.service"
-            ] ++ (lib.optionals cfg.createDatabase [ "postgresql.service" ]);
+            ]
+            ++ (lib.optionals cfg.createDatabase [ "postgresql.service" ]);
             restartTriggers = [ config.environment.etc."authentik/config.yml".source ];
             preStart = ''
               ln -svf ${cfg.authentikComponents.staticWorkdirDeps}/* /var/lib/authentik/
@@ -329,7 +404,10 @@ in
                 mkdir -p ${cfg.settings.storage.media.file.path}
               ''}
             '';
-            environment = mkMerge [ environment { TZ = tz; } ];
+            environment = mkMerge [
+              environment
+              { TZ = tz; }
+            ];
             serviceConfig = mkMerge [
               serviceDefaults
               {
@@ -374,6 +452,7 @@ in
             "network-online.target"
             "authentik.service"
           ];
+          environment.AUTHENTIK_LISTEN__METRICS = cfg.listenMetrics;
           serviceConfig = {
             RuntimeDirectory = "authentik-ldap";
             UMask = "0027";
@@ -400,6 +479,11 @@ in
             "network-online.target"
             "authentik.service"
           ];
+          environment = {
+            AUTHENTIK_LISTEN__METRICS = cfg.listenMetrics;
+            AUTHENTIK_LISTEN__HTTP = cfg.listenHTTP;
+            AUTHENTIK_LISTEN__HTTPS = cfg.listenHTTPS;
+          };
           serviceConfig = {
             RuntimeDirectory = "authentik-proxy";
             UMask = "0027";
@@ -426,6 +510,7 @@ in
             "network-online.target"
             "authentik.service"
           ];
+          environment.AUTHENTIK_LISTEN__METRICS = cfg.listenMetrics;
           serviceConfig = {
             RuntimeDirectory = "authentik-radius";
             UMask = "0027";

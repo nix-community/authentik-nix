@@ -91,5 +91,12 @@ pkgs.nixosTest {
         machine.succeed("su - alice -c 'firefox http://localhost/' >&2 &")
         machine.wait_for_text("authentik")
         machine.screenshot("5_nginx_proxies_requests")
+
+    with subtest("metrics & worker"):
+        machine.wait_for_open_port(9300)
+        machine.wait_for_open_port(9301)
+
+        print(machine.succeed("curl -L localhost:9300/metrics | grep authentik_outpost_connection | grep 'Embedded'"))
+        print(machine.succeed("curl -L localhost:9301/metrics | grep authentik_tasks_total"))
   '';
 }
