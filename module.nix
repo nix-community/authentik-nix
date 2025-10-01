@@ -364,8 +364,8 @@ in
               environment
               {
                 TZ = tz;
-                AUTHENTIK_LISTEN__LISTEN_HTTP = cfg.worker.listenHTTP;
-                AUTHENTIK_LISTEN__LISTEN_METRICS = cfg.worker.listenMetrics;
+                AUTHENTIK_LISTEN__HTTP = cfg.worker.listenHTTP;
+                AUTHENTIK_LISTEN__METRICS = cfg.worker.listenMetrics;
               }
             ];
             serviceConfig = mkMerge [
