@@ -458,7 +458,7 @@ in
             UMask = "0027";
             WorkingDirectory = "%t/authentik-ldap";
             DynamicUser = true;
-            ExecStart = "${config.services.authentik.authentikComponents.gopkgs}/bin/ldap";
+            ExecStart = "${config.services.authentik.authentikComponents.gopkgs.ldap}/bin/ldap";
             EnvironmentFile = mkIf (cfg.environmentFile != null) [ cfg.environmentFile ];
             Restart = "on-failure";
           };
@@ -489,7 +489,7 @@ in
             UMask = "0027";
             WorkingDirectory = "%t/authentik-proxy";
             DynamicUser = true;
-            ExecStart = "${config.services.authentik.authentikComponents.gopkgs}/bin/proxy";
+            ExecStart = "${config.services.authentik.authentikComponents.gopkgs.proxy}/bin/proxy";
             EnvironmentFile = mkIf (cfg.environmentFile != null) [ cfg.environmentFile ];
             Restart = "on-failure";
           };
@@ -516,7 +516,7 @@ in
             UMask = "0027";
             WorkingDirectory = "%t/authentik-radius";
             DynamicUser = true;
-            ExecStart = "${config.services.authentik.authentikComponents.gopkgs}/bin/radius";
+            ExecStart = "${config.services.authentik.authentikComponents.gopkgs.radius}/bin/radius";
             EnvironmentFile = mkIf (cfg.environmentFile != null) [ cfg.environmentFile ];
             Restart = "on-failure";
           };
