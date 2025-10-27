@@ -3,12 +3,12 @@
   authentik-version,
   authentikComponents,
   buildNapalmPackage,
-  nodejs_22,
+  nodejs_24,
 }:
 buildNapalmPackage "${authentik-src}/web" rec {
   version = authentik-version; # 0.0.0 specified upstream in package.json
   NODE_ENV = "production";
-  nodejs = nodejs_22;
+  nodejs = nodejs_24;
   preBuild = ''
     ln -sv ${authentikComponents.docs} ../website
     ln -sv ${authentik-src}/package.json ../
