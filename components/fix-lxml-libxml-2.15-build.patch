@@ -1,0 +1,12 @@
+diff --git a/src/lxml/etree.c b/src/lxml/etree.c
+index 9fbfe5a..74c83c7 100644
+--- a/src/lxml/etree.c
++++ b/src/lxml/etree.c
+@@ -35183,7 +35183,6 @@ static void __pyx_f_4lxml_5etree_fixThreadDictNamesForDtd(xmlDtd *__pyx_v_c_dtd,
+  *                 _fixThreadDictPtr(&c_attribute.name, c_src_dict, c_dict)
+  *                 _fixThreadDictPtr(&c_attribute.prefix, c_src_dict, c_dict)
+ */
+-        __pyx_f_4lxml_5etree__fixThreadDictPtr((&__pyx_v_c_attribute->defaultValue), __pyx_v_c_src_dict, __pyx_v_c_dict);
+ 
+         /* "src/lxml/proxy.pxi":578
+  *             while c_attribute:

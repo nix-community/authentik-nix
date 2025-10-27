@@ -77,6 +77,7 @@ let
     lxml = prev.lxml.overrideAttrs (
       {
         buildInputs ? [ ],
+        patches ? [ ],
         ...
       }:
       {
@@ -84,6 +85,13 @@ let
           libxslt
           libxml2
           zlib
+        ];
+        patches = patches ++ [
+          # The upstream fix for this is
+          # https://github.com/lxml/lxml/commit/f7a813483c4482dd114e7ee8b42b54337e285503,
+          # however, this doesn't help us here because the `etree.c` file is already generated
+          # (we're using the wheel), so we have to patch the C file directly.
+          ./fix-lxml-libxml-2.15-build.patch
         ];
       }
     );
