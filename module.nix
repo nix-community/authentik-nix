@@ -295,10 +295,6 @@ in
             };
             media.enable_upload = mkDefault true;
           };
-          redis.servers.authentik = {
-            enable = true;
-            port = 6379;
-          };
           postgresql = mkIf cfg.createDatabase {
             enable = true;
             ensureDatabases = [ "authentik" ];
@@ -394,7 +390,6 @@ in
             ];
             after = [
               "network-online.target"
-              "redis-authentik.service"
             ]
             ++ (lib.optionals cfg.createDatabase [ "postgresql.service" ]);
             restartTriggers = [ config.environment.etc."authentik/config.yml".source ];

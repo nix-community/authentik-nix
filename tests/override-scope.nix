@@ -92,7 +92,6 @@ pkgs.nixosTest {
     start_all()
 
     authentik.wait_for_unit("postgresql.service")
-    authentik.wait_for_unit("redis-authentik.service")
     authentik.wait_for_unit("authentik-migrate.service")
     authentik.wait_for_unit("authentik-worker.service")
     authentik.wait_for_unit("authentik.service")
