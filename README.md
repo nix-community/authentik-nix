@@ -16,7 +16,7 @@ Please note that this project is not directly affiliated with the official [auth
 * [flake.nix](./flake.nix)
   This flake provides packages (server, worker, outposts, ...) as outputs, a NixOS module and a simple VM integration test for the module.
 * [module.nix](./module.nix)
-  The NixOS module configures authentik services, redis and (by default) a local postgres instance. The upstream default authentik configuration can be partially overridden by setting desired parameters under `services.authentik.settings`.
+  The NixOS module configures authentik services and (by default) a local postgres instance. The upstream default authentik configuration can be partially overridden by setting desired parameters under `services.authentik.settings`.
 * [poetry2nix-python-overrides.nix](./poetry2nix-python-overrides.nix)
   contains overrides and fixes for building the python env
 * [minimal-vmtest.nix](./tests/minimal-vmtest.nix)
