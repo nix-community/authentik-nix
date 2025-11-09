@@ -307,7 +307,7 @@ in
             postgresql = mkIf cfg.createDatabase {
               user = mkDefault "authentik";
               name = mkDefault "authentik";
-              host = mkDefault "";
+              host = mkDefault "/run/postgresql";
             };
             cert_discovery_dir = mkIf (cfg.nginx.enable && cfg.nginx.enableACME) "env://CREDENTIALS_DIRECTORY";
             storage.media = {
