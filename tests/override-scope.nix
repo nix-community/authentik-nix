@@ -42,7 +42,7 @@ let
     }
   );
 in
-pkgs.nixosTest {
+pkgs.testers.runNixOSTest {
   name = "authentik";
   nodes = {
     authentik = {

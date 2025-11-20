@@ -3,7 +3,7 @@
   authentik-version,
   nixosModules,
 }:
-pkgs.nixosTest {
+pkgs.testers.runNixOSTest {
   name = "authentik";
   nodes = {
     authentik = {
