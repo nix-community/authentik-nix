@@ -300,6 +300,16 @@ in
         );
       in
       {
+        assertions = [
+          {
+            assertion = cfg.nginx.enableACME -> cfg.nginx.enable;
+            message = ''
+              Cannot enable `services.authentik.nginx.enableACME` when
+              `services.authentik.nginx.enable` is `false`.
+            '';
+          }
+        ];
+
         services = {
           authentik.settings = {
             blueprints_dir = mkDefault "${cfg.authentikComponents.staticWorkdirDeps}/blueprints";
@@ -439,6 +449,12 @@ in
               }
             ];
           };
+        };
+
+        security.acme.certs = mkIf cfg.nginx.enableACME {
+          ${cfg.nginx.host}.postRun = ''
+            systemctl restart authentik-worker.service
+          '';
         };
 
         services.nginx = mkIf cfg.nginx.enable {
