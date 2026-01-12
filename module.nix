@@ -313,6 +313,16 @@ in
         services = {
           authentik.settings = {
             blueprints_dir = mkDefault "${cfg.authentikComponents.staticWorkdirDeps}/blueprints";
+            listen = {
+              listen_debug = mkDefault "127.0.0.1:9900";
+              listen_debug_py = mkDefault "127.0.0.1:9901";
+              listen_http = mkDefault "127.0.0.1:9000";
+              listen_https = mkDefault "127.0.0.1:9443";
+              listen_ldap = mkDefault "0.0.0.0:3389";
+              listen_ldaps = mkDefault "0.0.0.0:6636";
+              listen_radius = mkDefault "0.0.0.0:1812";
+              listen_metrics = mkDefault "127.0.0.1:9300";
+            };
             template_dir = mkDefault "${cfg.authentikComponents.staticWorkdirDeps}/templates";
             postgresql = mkIf cfg.createDatabase {
               user = mkDefault "authentik";
