@@ -3,15 +3,13 @@
   authentikComponents,
   linkFarm,
   applyPatches,
+  patches,
 }:
 let
   patched-src = applyPatches {
     src = authentik-src;
     name = "patched-authentik-source";
-    patches = [
-      ./authentik_media_upload.patch
-      ./authentik_media_tenant_files_migration.patch
-    ];
+    inherit patches;
   };
 in
 linkFarm "authentik-static-workdir-deps" [

@@ -64,7 +64,7 @@ buildNapalmPackage "${authentik-src}/website" {
   # $ cd postman-code-generators
   # $ git checkout v[version-from-lockfile]
   # $ cd codegens/ 
-  # $ for f in **/npm-shrinkfile.json; do cp "$f" "[this projects root]/comonents/docs-extra-package-locks/${f//\//-}"
+  # $ for f in **/npm-shrinkwrap.json; do cp "$f" "[this projects root]/components/docs-extra-package-locks/${f//\//-}"; done
   #
   #
 

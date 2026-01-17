@@ -1,0 +1,24 @@
+From 2f51711b64204d090ad8cd6b2ef19fd11a1a6469 Mon Sep 17 00:00:00 2001
+From: Maximilian Bosch <maximilian@mbosch.me>
+Date: Fri, 16 Jan 2026 21:50:11 +0100
+Subject: [PATCH 2/2] admin: file dir doesn't have to be a mountpoint
+
+---
+ authentik/admin/files/backends/file.py | 1 -
+ 1 file changed, 1 deletion(-)
+
+diff --git a/authentik/admin/files/backends/file.py b/authentik/admin/files/backends/file.py
+index 7858ed5e9b..8a6d55ce64 100644
+--- a/authentik/admin/files/backends/file.py
++++ b/authentik/admin/files/backends/file.py
+@@ -47,7 +47,6 @@ class FileBackend(ManageableBackend):
+     def manageable(self) -> bool:
+         return (
+             self.base_path.exists()
+-            and (self._base_dir.is_mount() or (self._base_dir / self.usage.value).is_mount())
+             or (settings.DEBUG or settings.TEST)
+         )
+ 
+-- 
+2.51.2
+

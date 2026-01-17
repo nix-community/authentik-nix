@@ -323,10 +323,9 @@ in
             storage.media = {
               backend = mkDefault "file";
               file = mkDefault {
-                path = "/var/lib/authentik/media";
+                path = "/var/lib/authentik";
               };
             };
-            media.enable_upload = mkDefault true;
           };
           postgresql = mkIf cfg.createDatabase {
             enable = true;
@@ -428,9 +427,6 @@ in
             restartTriggers = [ config.environment.etc."authentik/config.yml".source ];
             preStart = ''
               ln -svf ${cfg.authentikComponents.staticWorkdirDeps}/* /var/lib/authentik/
-              ${optionalString (cfg.settings.storage.media.backend == "file") ''
-                mkdir -p ${cfg.settings.storage.media.file.path}
-              ''}
             '';
             environment = mkMerge [
               environment

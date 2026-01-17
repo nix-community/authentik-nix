@@ -2,19 +2,21 @@
   authentik-src,
   authentik-version,
   authentikComponents,
-  buildGo124Module,
+  buildGo125Module,
   lib,
   makeWrapper,
   guacamole-server,
   stdenv,
+  patches,
 }:
 
 let
   guacamoleAvailable = lib.meta.availableOn stdenv.hostPlatform guacamole-server;
 in
-buildGo124Module {
+buildGo125Module {
   pname = "authentik-gopkgs";
   version = authentik-version;
+  inherit patches;
   prePatch = ''
     sed -i"" -e 's,./web/dist/,${authentikComponents.frontend}/dist/,' web/static.go
     sed -i"" -e 's,./web/dist/,${authentikComponents.frontend}/dist/,' internal/web/static.go
@@ -61,7 +63,7 @@ buildGo124Module {
   ] ++ lib.optionals guacamoleAvailable [
     "cmd/rac"
   ];
-  vendorHash = "sha256-m2shrCwoVdbtr8B83ZcAyG+J6dEys2xdjtlfFFF4CDo=";
+  vendorHash = "sha256-u/kAqDCeWHPaw/0+lQ9U6/pHSgdANOeflQLVgUV64Vs=";
   nativeBuildInputs = [ makeWrapper ];
   doCheck = false;
   postInstall = ''
