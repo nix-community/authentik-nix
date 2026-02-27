@@ -74,6 +74,7 @@ pkgs.testers.runNixOSTest {
         };
         # pass authentikComponents with patched pythonEnv and staticWorkdirDeps
         inherit (customScope) authentikComponents;
+        settings.disable_update_check = true;
       };
 
       services.xserver.enable = true;

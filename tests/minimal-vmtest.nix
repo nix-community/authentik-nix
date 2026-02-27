@@ -33,6 +33,7 @@ pkgs.testers.runNixOSTest {
           enable = true;
           host = "localhost";
         };
+        settings.disable_update_check = true;
       };
 
       services.xserver.enable = true;
