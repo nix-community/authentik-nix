@@ -48,7 +48,7 @@ pkgs.testers.runNixOSTest {
     authentik = {
       virtualisation = {
         cores = 3;
-        memorySize = 2048;
+        memorySize = 3072;
       };
       imports = [
         nixosModules.default
