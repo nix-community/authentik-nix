@@ -42,7 +42,7 @@
     };
     authentik-src = {
       # change version string in outputs as well when updating
-      url = "github:goauthentik/authentik/version/2025.12.4";
+      url = "github:goauthentik/authentik/version/2026.2.0";
       flake = false;
     };
     authentik-go = {
@@ -72,7 +72,7 @@
         ...
       }:
       let
-        authentik-version = "2025.12.4"; # to pass to the drvs of some components
+        authentik-version = "2026.2.0"; # to pass to the drvs of some components
       in
       {
         systems = import inputs.systems;
@@ -114,7 +114,7 @@
               {
                 pkgs,
                 system ? pkgs.stdenv.hostPlatform.system,
-                python ? pkgs.python313,
+                python ? pkgs.python314,
                 authentik-version ? authentik-version',
                 buildNapalmPackage ? napalm.legacyPackages.${system}.buildPackage,
               }:

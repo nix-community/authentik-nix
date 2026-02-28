@@ -8,6 +8,7 @@
   libtool,
   pkg-config,
   xmlsec,
+  python,
 }:
 
 let
@@ -44,6 +45,18 @@ let
 
   # Fixes for dependencies with C libraries.
   buildFixes = final: prev: {
+    django-tenants = prev.django-tenants.overrideAttrs {
+      /*
+        Resolves
+
+         > FileCollisionError: Two or more packages are trying to provide the same file with different contents
+         >
+         >         Files: /nix/store/snsw4gij9l7pllphdskxqmr3y5a951aq-django-tenants-3.10.0/lib/python3.14/site-packages/docs/Makefile /nix/store/dxy56wp46sm8nqjfhmfswb5k5rcwrj6y-pyrad-2.5.4/lib/python3.14/site-packages/docs/Makefile
+      */
+      postFixup = ''
+        rm -r $out/${python.sitePackages}/docs
+      '';
+    };
     gssapi = prev.gssapi.overrideAttrs (
       {
         buildInputs ? [ ],
@@ -77,7 +90,6 @@ let
     lxml = prev.lxml.overrideAttrs (
       {
         buildInputs ? [ ],
-        patches ? [ ],
         ...
       }:
       {
@@ -85,13 +97,6 @@ let
           libxslt
           libxml2
           zlib
-        ];
-        patches = patches ++ [
-          # The upstream fix for this is
-          # https://github.com/lxml/lxml/commit/f7a813483c4482dd114e7ee8b42b54337e285503,
-          # however, this doesn't help us here because the `etree.c` file is already generated
-          # (we're using the wheel), so we have to patch the C file directly.
-          ./fix-lxml-libxml-2.15-build.patch
         ];
       }
     );
