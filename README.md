@@ -179,6 +179,17 @@ The build artifacts from successful CI runs should be available from the corresp
 
 https://app.cachix.org/cache/nix-community
 
+
+## Migrating
+
+When migrating an `authentik-nix` deployment from one machine to another the following considerations may be helpful.
+
+- Copy `/var/lib/authentik` to the new machine, and be aware that it is a symlink. `/media` is most important.
+- Lock the revision that's used to build `authentik-nix` to not down- or upgrade by accident, making debugging harder if needed.
+- Dump database according to [upstream's documentation](https://docs.goauthentik.io/sys-mgmt/ops/backup-restore/).
+    - By default, certs are written to the database, not filesystem. Migrating certs by restoring the database works.
+- authentik runs fine with a different domain or base URL, you may test everything and only then adjust DNS records for production deployment.
+
 ## License
 This project is released under the terms of the MIT License. See [LICENSE](./LICENSE).
 Consult [the upstream project](https://github.com/goauthentik/authentik) for information about authentik licensing.
