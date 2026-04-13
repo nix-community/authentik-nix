@@ -3,11 +3,11 @@
     "authentik-go": {
       "flake": false,
       "locked": {
-        "lastModified": 1771856219,
-        "narHash": "sha256-zTEmvxe+BpfWYvAl675PnhXCH4jV4GUTFb1MrQ1Eyno=",
+        "lastModified": 1775051139,
+        "narHash": "sha256-UmO7mezuzjbWbxqu3ZehM5T/0YKdg60OAyjkh410OLk=",
         "owner": "goauthentik",
         "repo": "client-go",
-        "rev": "4c1444ee54d945fbcc5ae107b4f191ca0352023d",
+        "rev": "308dc24d005a9ed67da41fcd307ad44ba351965f",
         "type": "github"
       },
       "original": {
