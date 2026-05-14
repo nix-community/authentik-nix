@@ -59,7 +59,7 @@ pkgs.testers.runNixOSTest {
     authentik.wait_until_succeeds("curl -fL http://localhost:9000/if/flow/initial-setup/ >&2")
 
     with subtest("Frontend renders"):
-        machine.succeed("su - alice -c 'firefox http://localhost:9000/if/flow/initial-setup/' >&2 &")
+        machine.succeed("su - alice -c 'firefox --kiosk http://localhost:9000/if/flow/initial-setup/' >&2 &")
         machine.wait_for_text("Welcome to authentik")
         machine.screenshot("1_rendered_frontend")
 
@@ -77,7 +77,7 @@ pkgs.testers.runNixOSTest {
         machine.screenshot("2_initial_setup_successful")
 
     with subtest("admin settings render and version as expected"):
-        machine.succeed("su - alice -c 'firefox http://localhost:9000/if/admin/' >&2 &")
+        machine.succeed("su - alice -c 'firefox --kiosk http://localhost:9000/if/admin/' >&2 &")
         machine.wait_for_text("General system status")
         machine.screenshot("3_rendered_admin_interface")
         machine.succeed("su - alice -c 'xdotool click 1' >&2")
@@ -88,7 +88,7 @@ pkgs.testers.runNixOSTest {
         machine.screenshot("4_correct_version_in_admin_interface")
 
     with subtest("nginx proxies to authentik"):
-        machine.succeed("su - alice -c 'firefox http://localhost/' >&2 &")
+        machine.succeed("su - alice -c 'firefox --kiosk http://localhost/' >&2 &")
         machine.wait_for_text("authentik")
         machine.screenshot("5_nginx_proxies_requests")
 
