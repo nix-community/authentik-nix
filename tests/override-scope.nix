@@ -47,8 +47,8 @@ pkgs.testers.runNixOSTest {
   nodes = {
     authentik = {
       virtualisation = {
-        cores = 3;
-        memorySize = 3072;
+        cores = 6;
+        memorySize = 8192;
       };
       imports = [
         nixosModules.default
@@ -100,37 +100,37 @@ pkgs.testers.runNixOSTest {
     authentik.wait_until_succeeds("curl -fL http://localhost:9000/if/flow/initial-setup/ >&2")
 
     with subtest("Frontend renders"):
-        machine.succeed("su - alice -c 'firefox http://localhost:9000/if/flow/initial-setup/' >&2 &")
-        machine.wait_for_text("${customWelcome}")
-        machine.screenshot("1_rendered_frontend")
+        authentik.succeed("su - alice -c 'firefox --kiosk http://localhost:9000/if/flow/initial-setup/' >&2 &")
+        authentik.wait_for_text("${customWelcome}")
+        authentik.screenshot("1_rendered_frontend")
 
     with subtest("admin account setup works"):
-        machine.send_key("tab")
-        machine.send_key("tab")
-        machine.send_chars("akadmin@localhost")
-        machine.send_key("tab")
-        machine.send_chars("foobar")
-        machine.send_key("tab")
-        machine.send_chars("foobar")
-        machine.send_key("ret")
-        machine.wait_for_text("My applications")
-        machine.send_key("esc")
-        machine.screenshot("2_initial_setup_successful")
+        authentik.send_key("tab")
+        authentik.send_key("tab")
+        authentik.send_chars("akadmin@localhost")
+        authentik.send_key("tab")
+        authentik.send_chars("foobar")
+        authentik.send_key("tab")
+        authentik.send_chars("foobar")
+        authentik.send_key("ret")
+        authentik.wait_for_text("My applications")
+        authentik.send_key("esc")
+        authentik.screenshot("2_initial_setup_successful")
 
     with subtest("admin settings render and version as expected"):
-        machine.succeed("su - alice -c 'firefox http://localhost:9000/if/admin/' >&2 &")
-        machine.wait_for_text("General system status")
-        machine.screenshot("3_rendered_admin_interface")
-        machine.succeed("su - alice -c 'xdotool click 1' >&2")
-        machine.succeed("su - alice -c 'xdotool key --delay 100 Page_Down' >&2")
+        authentik.succeed("su - alice -c 'firefox --kiosk http://localhost:9000/if/admin/' >&2 &")
+        authentik.wait_for_text("General system status")
+        authentik.screenshot("3_rendered_admin_interface")
+        authentik.succeed("su - alice -c 'xdotool click 1' >&2")
+        authentik.succeed("su - alice -c 'xdotool key --delay 100 Page_Down' >&2")
         # sometimes the cursor covers the version string
-        machine.succeed("su - alice -c 'xdotool mousemove_relative 50 50' >&2")
-        machine.wait_for_text("${builtins.replaceStrings [ "." ] [ ".?" ] authentik-version}")
-        machine.screenshot("4_correct_version_in_admin_interface")
+        authentik.succeed("su - alice -c 'xdotool mousemove_relative 50 50' >&2")
+        authentik.wait_for_text("${builtins.replaceStrings [ "." ] [ ".?" ] authentik-version}")
+        authentik.screenshot("4_correct_version_in_admin_interface")
 
     with subtest("nginx proxies to authentik"):
-        machine.succeed("su - alice -c 'firefox http://localhost/' >&2 &")
-        machine.wait_for_text("authentik")
-        machine.screenshot("5_nginx_proxies_requests")
+        authentik.succeed("su - alice -c 'firefox --kiosk http://localhost/' >&2 &")
+        authentik.wait_for_text("authentik")
+        authentik.screenshot("5_nginx_proxies_requests")
   '';
 }
