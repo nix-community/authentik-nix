@@ -111,7 +111,7 @@
               pkgs.lib.makeScope pkgs.newScope (final: {
                 authentikComponents = {
                   docs = final.callPackage ./components/docs.nix { };
-                  frontend = final.callPackage ./components/frontend.nix { };
+                  frontend = final.callPackage ./components/frontend.nix { inherit (final) client-ts; };
                   pythonEnv = final.callPackage ./components/pythonEnv.nix { };
                   # server + outposts
                   gopkgs = final.callPackage ./components/gopkgs.nix { };
@@ -122,6 +122,7 @@
                 };
 
                 generatedGoClient = final.callPackage ./components/client-go.nix { };
+                client-ts = final.callPackage ./components/client-ts.nix { };
 
                 # for uv2nix
                 pythonOverlay = final.callPackage ./components/python-overrides.nix { };

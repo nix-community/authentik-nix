@@ -4,6 +4,7 @@
   authentikComponents,
   buildNpmPackage,
   nodejs_24,
+  client-ts,
 }:
 
 buildNpmPackage {
@@ -26,6 +27,7 @@ buildNpmPackage {
   preBuild = ''
     ln -sv ${authentikComponents.docs} ../website
     ln -sv ${authentik-src}/package.json ../
+    npm install ${client-ts}/*.tgz
   '';
 
   buildPhase = ''
