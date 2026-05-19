@@ -33,13 +33,6 @@
 
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
 
-    napalm = {
-      url = "github:willibutz/napalm/avoid-foldl-stack-overflow";
-      inputs = {
-        nixpkgs.follows = "nixpkgs";
-        flake-utils.follows = "flake-utils";
-      };
-    };
     authentik-src = {
       # change version string in outputs as well when updating
       url = "github:goauthentik/authentik/version/2026.2.3";
@@ -55,7 +48,6 @@
     inputs@{
       self,
       flake-parts,
-      napalm,
       authentik-src,
       authentik-go,
       uv2nix,
@@ -113,15 +105,13 @@
               in
               {
                 pkgs,
-                system ? pkgs.stdenv.hostPlatform.system,
                 python ? pkgs.python314,
                 authentik-version ? authentik-version',
-                buildNapalmPackage ? napalm.legacyPackages.${system}.buildPackage,
               }:
               pkgs.lib.makeScope pkgs.newScope (final: {
                 authentikComponents = {
                   docs = final.callPackage ./components/docs.nix { };
-                  frontend = final.callPackage ./components/frontend.nix { };
+                  frontend = final.callPackage ./components/frontend.nix { inherit (final) client-ts; };
                   pythonEnv = final.callPackage ./components/pythonEnv.nix { };
                   # server + outposts
                   gopkgs = final.callPackage ./components/gopkgs.nix { };
@@ -132,6 +122,7 @@
                 };
 
                 generatedGoClient = final.callPackage ./components/client-go.nix { };
+                client-ts = final.callPackage ./components/client-ts.nix { };
 
                 # for uv2nix
                 pythonOverlay = final.callPackage ./components/python-overrides.nix { };
@@ -144,7 +135,6 @@
                   authentik-src
                   authentik-go
                   authentik-version
-                  buildNapalmPackage
                   uv2nix
                   pyproject-build-systems
                   pyproject-nix
