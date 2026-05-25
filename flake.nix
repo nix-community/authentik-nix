@@ -42,7 +42,7 @@
     };
     authentik-src = {
       # change version string in outputs as well when updating
-      url = "github:goauthentik/authentik/version/2026.2.3";
+      url = "github:goauthentik/authentik/version/2026.5.0";
       flake = false;
     };
     authentik-go = {
