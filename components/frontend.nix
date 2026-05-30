@@ -10,6 +10,7 @@ buildNapalmPackage "${authentik-src}/web" rec {
   NODE_ENV = "production";
   nodejs = nodejs_24;
   preBuild = ''
+    cp -rv --no-preserve=mode ${authentik-src}/packages ../
     ln -sv ${authentikComponents.docs} ../website
     ln -sv ${authentik-src}/package.json ../
   '';
@@ -18,6 +19,7 @@ buildNapalmPackage "${authentik-src}/web" rec {
   CHROMEDRIVER_SKIP_DOWNLOAD = "true";
   npmCommands = [
     "npm install --include=dev --nodedir=${nodejs}/include/node --loglevel verbose --ignore-scripts"
+    "(cd node_modules/@goauthentik/api && patchShebangs . && npm run build)"
     "npm run build"
     "npm run build:sfe"
   ];

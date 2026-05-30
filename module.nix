@@ -356,7 +356,10 @@ in
             requires = lib.optionals cfg.createDatabase [ "postgresql.target" ];
             wants = [ "network-online.target" ];
             after = [ "network-online.target" ] ++ lib.optionals cfg.createDatabase [ "postgresql.target" ];
-            before = [ "authentik.service" "authentik-worker.service" ];
+            before = [
+              "authentik.service"
+              "authentik-worker.service"
+            ];
             restartTriggers = [ config.environment.etc."authentik/config.yml".source ];
             environment = mkMerge [
               environment
@@ -381,7 +384,10 @@ in
             ];
           };
           authentik-worker = {
-            requires = lib.optionals cfg.createDatabase [ "postgresql.target" ];
+            requires = [
+              "authentik-migrate.service"
+            ]
+            ++ lib.optionals cfg.createDatabase [ "postgresql.target" ];
             wants = [ "network-online.target" ];
             after = [ "network-online.target" ] ++ lib.optionals cfg.createDatabase [ "postgresql.target" ];
             before = [ "authentik.service" ];
@@ -395,14 +401,16 @@ in
                 TZ = tz;
                 AUTHENTIK_LISTEN__HTTP = cfg.worker.listenHTTP;
                 AUTHENTIK_LISTEN__METRICS = cfg.worker.listenMetrics;
+                PYTHONPATH = config.services.authentik.authentikComponents.staticWorkdirDeps;
               }
             ];
+            path = [ config.services.authentik.authentikComponents.pythonEnv ];
             serviceConfig = mkMerge [
               serviceDefaults
               {
                 RuntimeDirectory = "authentik";
                 WorkingDirectory = "%t/authentik";
-                ExecStart = "${cfg.authentikComponents.manage}/bin/manage.py worker --pid-file %t/authentik/worker.pid";
+                ExecStart = "${cfg.authentikComponents.rust}/bin/authentik worker";
                 Restart = "on-failure";
                 RestartSec = "1s";
                 LoadCredential = mkIf (cfg.nginx.enable && cfg.nginx.enableACME) [
@@ -536,7 +544,7 @@ in
       {
         assertions = [
           {
-            assertion = config.services.authentik.authentikComponents.gopkgs?rac;
+            assertion = config.services.authentik.authentikComponents.gopkgs ? rac;
             message = ''
               guacamole-server is not available on the host's platform!
             '';
