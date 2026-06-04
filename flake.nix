@@ -42,11 +42,7 @@
     };
     authentik-src = {
       # change version string in outputs as well when updating
-      url = "github:goauthentik/authentik/version/2026.2.4";
-      flake = false;
-    };
-    authentik-go = {
-      url = "github:goauthentik/client-go";
+      url = "github:goauthentik/authentik/version/2026.5.2";
       flake = false;
     };
   };
@@ -57,7 +53,6 @@
       flake-parts,
       napalm,
       authentik-src,
-      authentik-go,
       uv2nix,
       pyproject-build-systems,
       pyproject-nix,
@@ -72,7 +67,7 @@
         ...
       }:
       let
-        authentik-version = "2026.2.4"; # to pass to the drvs of some components
+        authentik-version = "2026.5.2"; # to pass to the drvs of some components
       in
       {
         systems = import inputs.systems;
@@ -94,6 +89,7 @@
                         pythonEnv
                         frontend
                         gopkgs
+                        rust
                         docs
                         ;
                     }
@@ -125,6 +121,7 @@
                   pythonEnv = final.callPackage ./components/pythonEnv.nix { };
                   # server + outposts
                   gopkgs = final.callPackage ./components/gopkgs.nix { };
+                  rust = final.callPackage ./components/rust.nix { };
                   staticWorkdirDeps = final.callPackage ./components/staticWorkdirDeps.nix { };
                   migrate = final.callPackage ./components/migrate.nix { };
                   # worker
@@ -142,7 +139,6 @@
 
                 inherit
                   authentik-src
-                  authentik-go
                   authentik-version
                   buildNapalmPackage
                   uv2nix
@@ -172,6 +168,7 @@
                 staticWorkdirDeps
                 migrate
                 manage
+                rust
                 ;
 
               terraform-provider-authentik = inputs.nixpkgs.legacyPackages.${system}.buildGoModule rec {

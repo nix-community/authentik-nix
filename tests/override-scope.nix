@@ -97,10 +97,10 @@ pkgs.testers.runNixOSTest {
     authentik.wait_for_unit("authentik-worker.service")
     authentik.wait_for_unit("authentik.service")
     authentik.wait_for_open_port(9000)
-    authentik.wait_until_succeeds("curl -fL http://localhost:9000/if/flow/initial-setup/ >&2")
+    authentik.wait_until_succeeds("curl -fL http://localhost:9000 >&2")
 
     with subtest("Frontend renders"):
-        authentik.succeed("su - alice -c 'firefox --kiosk http://localhost:9000/if/flow/initial-setup/' >&2 &")
+        authentik.succeed("su - alice -c 'firefox --kiosk http://localhost:9000' >&2 &")
         authentik.wait_for_text("${customWelcome}")
         authentik.screenshot("1_rendered_frontend")
 
@@ -113,7 +113,7 @@ pkgs.testers.runNixOSTest {
         authentik.send_key("tab")
         authentik.send_chars("foobar")
         authentik.send_key("ret")
-        authentik.wait_for_text("My applications")
+        authentik.wait_for_text("No Applications available.")
         authentik.send_key("esc")
         authentik.screenshot("2_initial_setup_successful")
 

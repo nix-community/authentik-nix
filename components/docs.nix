@@ -2,13 +2,16 @@
   authentik-src,
   authentik-version,
   buildNapalmPackage,
-  nodejs_24,
+  nodejs_26,
 }:
 
 buildNapalmPackage "${authentik-src}/website" {
   version = authentik-version; # 0.0.0 specified upstream in package.json
   NODE_ENV = "production";
-  nodejs = nodejs_24;
+  nodejs = nodejs_26;
+  postPatch = ''
+    sed -i -e '/preinstall/d' package.json
+  '';
   npmCommands = [
     "cp -v ${authentik-src}/SECURITY.md ../SECURITY.md"
     "cp -vr ${authentik-src}/blueprints ../blueprints"
@@ -16,13 +19,17 @@ buildNapalmPackage "${authentik-src}/website" {
     "mkdir -p ../lifecycle/container"
     "cp -v ${authentik-src}/lifecycle/container/compose.yml ../lifecycle/container/compose.yml"
     "npm config set loglevel verbose"
-    "npm ci --workspaces --include-workspace-root --no-audit"
+    "npm ci --workspaces --include-workspace-root --no-audit --legacy-peer-deps"
     "npm run build"
   ];
   installPhase = ''
     rm -f ../website/static/blueprints
     cp -vr ../blueprints ../website/static/blueprints
     cp -vr ../website $out
+    # remove broken symlinks we'd get a build failure for. Do this explicitly
+    # to avoid having other broken symlinks, these are not relevant for
+    # production deployments anyways.
+    rm $out/node_modules/@goauthentik/{prettier-config,tsconfig,eslint-config}
   '';
 
   # These are lockfiles with extra deps that are required to successfully build
