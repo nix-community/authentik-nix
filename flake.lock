@@ -71,30 +71,6 @@
         "type": "github"
       }
     },
-    "napalm": {
-      "inputs": {
-        "flake-utils": [
-          "flake-utils"
-        ],
-        "nixpkgs": [
-          "nixpkgs"
-        ]
-      },
-      "locked": {
-        "lastModified": 1725806412,
-        "narHash": "sha256-lGZjkjds0p924QEhm/r0BhAxbHBJE1xMOldB/HmQH04=",
-        "owner": "willibutz",
-        "repo": "napalm",
-        "rev": "b492440d9e64ae20736d3bec5c7715ffcbde83f5",
-        "type": "github"
-      },
-      "original": {
-        "owner": "willibutz",
-        "ref": "avoid-foldl-stack-overflow",
-        "repo": "napalm",
-        "type": "github"
-      }
-    },
     "nixpkgs": {
       "locked": {
         "lastModified": 1781577229,
@@ -178,7 +154,6 @@
         "flake-compat": "flake-compat",
         "flake-parts": "flake-parts",
         "flake-utils": "flake-utils",
-        "napalm": "napalm",
         "nixpkgs": "nixpkgs",
         "pyproject-build-systems": "pyproject-build-systems",
         "pyproject-nix": "pyproject-nix",

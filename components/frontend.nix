@@ -2,30 +2,55 @@
   authentik-src,
   authentik-version,
   authentikComponents,
-  buildNapalmPackage,
-  nodejs_24,
+  buildNpmPackage,
+  nodejs_26,
 }:
-buildNapalmPackage "${authentik-src}/web" rec {
+
+buildNpmPackage {
+  pname = "authentik-web";
   version = authentik-version; # 0.0.0 specified upstream in package.json
-  NODE_ENV = "production";
-  nodejs = nodejs_24;
+
+  src = "${authentik-src}/web";
+
+  nodejs = nodejs_26;
+
+  npmDepsFetcherVersion = 2;
+  npmDepsHash = "sha256-rn5pHRXj19UXPfburIuKr4h3E1qpB1ndYCQ0+Z5vOhY=";
+
+  env.NODE_ENV = "production";
+
+  npmFlags = [
+    "--ignore-scripts"
+    "--legacy-peer-deps"
+  ];
+
+  postPatch = ''
+    rm packages/client-ts
+    cp -rv --no-preserve=mode ${authentikComponents.client-ts} packages/client-ts
+  '';
+
   preBuild = ''
     cp -rv --no-preserve=mode ${authentik-src}/packages ../
     ln -sv ${authentikComponents.docs} ../website
     ln -sv ${authentik-src}/package.json ../
   '';
-  # upstream does not clearly separate development dependencies
-  # from release build dependencies, therefore this workaround
-  CHROMEDRIVER_SKIP_DOWNLOAD = "true";
-  npmCommands = [
-    "npm install --include=dev --nodedir=${nodejs}/include/node --loglevel verbose --ignore-scripts"
-    "(cd node_modules/@goauthentik/api && patchShebangs . && npm run build)"
-    "npm run build"
-    "npm run build:sfe"
-  ];
+
+  buildPhase = ''
+    runHook preBuild
+
+    npm run build
+    npm run build:sfe
+
+    runHook postBuild
+  '';
+
   installPhase = ''
+    runHook preInstall
+
     mkdir $out
     mv dist $out/dist
     cp -r authentik icons $out
+
+    runHook postInstall
   '';
 }
