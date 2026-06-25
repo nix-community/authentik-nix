@@ -31,7 +31,7 @@ buildNpmPackage {
     cp -v ${authentik-src}/lifecycle/container/compose.yml ../lifecycle/container/compose.yml
   '';
 
-  npmBuildScript = "build:api";
+  npmBuildScript = "build";
 
   installPhase = ''
     runHook preInstall
@@ -39,6 +39,9 @@ buildNpmPackage {
     rm -f ../website/static/blueprints
     cp -vr ../blueprints ../website/static/blueprints
     cp -vr ../website $out
+    # remove broken symlinks we'd get a build failure for. Do this explicitly
+    # to avoid having other broken symlinks, these are not relevant for
+    # production deployments anyways.
     rm $out/node_modules/@goauthentik/{prettier-config,tsconfig,eslint-config}
 
     runHook postInstall
