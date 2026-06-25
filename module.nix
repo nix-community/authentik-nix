@@ -469,9 +469,22 @@ in
           virtualHosts.${cfg.nginx.host} = {
             inherit (cfg.nginx) enableACME;
             forceSSL = cfg.nginx.enableACME;
-            locations."/" = {
-              proxyWebsockets = true;
-              proxyPass = "https://localhost:9443";
+            locations = {
+              "/" = {
+                proxyPass = "https://localhost:9443";
+              };
+              "/ws/" = {
+                proxyWebsockets = true;
+                proxyPass = "https://localhost:9443";
+              };
+              "/static/" = {
+                alias = "${cfg.authentikComponents.frontend}/";
+                tryFiles = "$uri $uri/ =404";
+                extraConfig = ''
+                  expires max;
+                  access_log off;
+                '';
+              };
             };
           };
         };
