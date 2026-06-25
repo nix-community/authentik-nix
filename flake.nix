@@ -33,13 +33,6 @@
 
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
 
-    napalm = {
-      url = "github:willibutz/napalm/avoid-foldl-stack-overflow";
-      inputs = {
-        nixpkgs.follows = "nixpkgs";
-        flake-utils.follows = "flake-utils";
-      };
-    };
     authentik-src = {
       # change version string in outputs as well when updating
       url = "github:goauthentik/authentik/version/2026.5.3";
@@ -51,7 +44,6 @@
     inputs@{
       self,
       flake-parts,
-      napalm,
       authentik-src,
       uv2nix,
       pyproject-build-systems,
@@ -109,13 +101,12 @@
               in
               {
                 pkgs,
-                system ? pkgs.stdenv.hostPlatform.system,
                 python ? pkgs.python314,
                 authentik-version ? authentik-version',
-                buildNapalmPackage ? napalm.legacyPackages.${system}.buildPackage,
               }:
               pkgs.lib.makeScope pkgs.newScope (final: {
                 authentikComponents = {
+                  client-ts = final.callPackage ./components/client-ts.nix { };
                   docs = final.callPackage ./components/docs.nix { };
                   frontend = final.callPackage ./components/frontend.nix { };
                   pythonEnv = final.callPackage ./components/pythonEnv.nix { };
@@ -140,7 +131,6 @@
                 inherit
                   authentik-src
                   authentik-version
-                  buildNapalmPackage
                   uv2nix
                   pyproject-build-systems
                   pyproject-nix
