@@ -19,7 +19,7 @@ rustPlatform.buildRustPackage (finalAttrs: {
 
   env.RUSTFLAGS="--cfg tokio_unstable";
 
-  cargoHash = "sha256-QpKM2nHxNrkUmctuQKyBs/osfivaSXgq7CArUKIZNGo=";
+  cargoHash = "sha256-DYvoEVmiRKNM6MfDClPlfLC5pwFG5VObCg2oiPVEJ4Q=";
   nativeBuildInputs = [
     authentikComponents.pythonEnv
     cmake
