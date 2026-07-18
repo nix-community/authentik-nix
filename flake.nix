@@ -149,6 +149,10 @@
             inherit (self.lib.mkAuthentikScope { inherit pkgs; }) authentikComponents;
           in
           {
+            legacyPackages = {
+              authentikComponents = self.lib.mkAuthentikScope { inherit pkgs; };
+            };
+
             packages = {
               inherit (authentikComponents)
                 docs
