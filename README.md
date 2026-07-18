@@ -22,7 +22,9 @@ Please note that this project is not directly affiliated with the official [auth
 * [minimal-vmtest.nix](./tests/minimal-vmtest.nix)
   A minimal NixOS VM test. Confirms that the services configured by the module start and manually goes through the initial setup flow. Some screenshots are taken during test execution to confirm that the frontend is rendered correctly.
 * [components](./components/default.nix)
-  An overridable scope, including the individual authentik components. An example for how to create a custom scope is provided in [override-scope.nix](./tests/override-scope.nix).
+  An overridable scope, including the individual authentik components. An example for how to create a custom scope is provided in [override-scope.nix](./tests/override-scope.nix). The attribute `legacyPackages.${system}.authentikComponents`
+  can be used as the instantiation of this function for the pinned `pkgs`.
+
 
 ## Usage
 
