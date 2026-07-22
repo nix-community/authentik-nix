@@ -15,7 +15,7 @@ buildNpmPackage {
   nodejs = nodejs_26;
 
   npmDepsFetcherVersion = 2;
-  npmDepsHash = "sha256-FPb03DgErAKWeu2fXo6iY7DvcbKqiW8F414DOkrWg7M=";
+  npmDepsHash = "sha256-YL25ZEU9doL5Gkj2b+sh/9ms2Quso8uv1Ks43dmPyIY=";
 
   env.NODE_ENV = "production";
 
