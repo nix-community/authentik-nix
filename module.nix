@@ -448,7 +448,7 @@ in
                 UMask = "0027";
                 # TODO /run might be sufficient
                 WorkingDirectory = "%S/authentik";
-                ExecStart = "${cfg.authentikComponents.gopkgs}/bin/server";
+                ExecStart = "${cfg.authentikComponents.gopkgs}/bin/authentik-server";
                 Restart = "on-failure";
                 RestartSec = "1s";
               }

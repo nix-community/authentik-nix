@@ -72,8 +72,10 @@ buildGo126Module {
   nativeBuildInputs = [ makeWrapper ];
   doCheck = false;
   postInstall = ''
-    wrapProgram $out/bin/server --prefix PATH : ${authentikComponents.pythonEnv}/bin
-    wrapProgram $out/bin/server --prefix PYTHONPATH : ${authentikComponents.staticWorkdirDeps}
+    mv $out/bin/server $out/bin/authentik-server
+    ln -sf $out/bin/authentik-server $out/bin/server
+    wrapProgram $out/bin/authentik-server --prefix PATH : ${authentikComponents.pythonEnv}/bin
+    wrapProgram $out/bin/authentik-server --prefix PYTHONPATH : ${authentikComponents.staticWorkdirDeps}
 
     mkdir -p $ldap/bin $proxy/bin $radius/bin
     mv $out/bin/ldap $ldap/bin/
