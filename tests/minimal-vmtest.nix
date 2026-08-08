@@ -6,15 +6,15 @@
 pkgs.testers.runNixOSTest {
   name = "authentik";
   nodes = {
-    authentik = {
+    authentik = { pkgs, modulesPath, ... }: {
       virtualisation = {
         cores = 3;
         memorySize = 3072;
       };
       imports = [
         nixosModules.default
-        "${pkgs.path}/nixos/tests/common/user-account.nix"
-        "${pkgs.path}/nixos/tests/common/x11.nix"
+        "${modulesPath}/../tests/common/user-account.nix"
+        "${modulesPath}/../tests/common/x11.nix"
       ];
 
       # Keep in mind that the secret still ends up in the store and is world-readable because the
@@ -36,7 +36,6 @@ pkgs.testers.runNixOSTest {
         settings.disable_update_check = true;
       };
 
-      services.xserver.enable = true;
       test-support.displayManager.auto.user = "alice";
       environment.systemPackages = with pkgs; [
         firefox
