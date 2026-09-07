@@ -51,6 +51,8 @@ buildNpmPackage {
     mv dist $out/dist
     cp -r authentik icons $out
 
+    find $out/dist/ -name "*.map" -delete
+
     runHook postInstall
   '';
 }
