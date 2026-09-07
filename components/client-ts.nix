@@ -4,7 +4,7 @@
   authentik-src,
   authentik-version,
   client-ts-generator-src,
-  stdenv,
+  stdenvNoCC,
   nodejs_26,
   typescript,
   writableTmpDirAsHomeHook,
@@ -37,7 +37,7 @@ let
     	--git-repo-id client-ts
   '';
 in
-stdenv.mkDerivation {
+stdenvNoCC.mkDerivation {
   pname = "authentik-client-ts";
   version = authentik-version; # 0.0.0 specified upstream in package.json
 

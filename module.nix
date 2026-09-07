@@ -441,6 +441,7 @@ in
               environment
               { TZ = tz; }
             ];
+            path = [ config.services.authentik.authentikComponents.pythonEnv ];
             serviceConfig = mkMerge [
               serviceDefaults
               {
@@ -448,7 +449,7 @@ in
                 UMask = "0027";
                 # TODO /run might be sufficient
                 WorkingDirectory = "%S/authentik";
-                ExecStart = "${cfg.authentikComponents.gopkgs}/bin/authentik-server";
+                ExecStart = "${cfg.authentikComponents.rust}/bin/authentik server";
                 Restart = "on-failure";
                 RestartSec = "1s";
               }

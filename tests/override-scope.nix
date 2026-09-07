@@ -98,6 +98,7 @@ pkgs.testers.runNixOSTest {
     authentik.wait_for_unit("authentik.service")
     authentik.wait_for_open_port(9000)
     authentik.wait_until_succeeds("curl -fL http://localhost:9000 >&2")
+    authentik.wait_for_x()
 
     with subtest("Frontend renders"):
         authentik.succeed("su - alice -c 'firefox --kiosk http://localhost:9000' >&2 &")
@@ -105,6 +106,7 @@ pkgs.testers.runNixOSTest {
         authentik.screenshot("1_rendered_frontend")
 
     with subtest("admin account setup works"):
+        authentik.send_key("tab")
         authentik.send_key("tab")
         authentik.send_key("tab")
         authentik.send_chars("akadmin@localhost")

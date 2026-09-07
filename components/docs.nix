@@ -1,27 +1,37 @@
 {
   authentik-src,
   authentik-version,
-  buildNpmPackage,
+  stdenvNoCC,
+  pnpm_11,
+  pnpmConfigHook,
+  fetchPnpmDeps,
   nodejs_26,
 }:
 
-buildNpmPackage {
+let
+  nodejs = nodejs_26;
+  pnpm = pnpm_11.override { nodejs-slim = nodejs; };
+in
+stdenvNoCC.mkDerivation (finalAttrs: {
   pname = "authentik-docs";
   version = authentik-version; # 0.0.0 specified upstream in package.json
 
   src = "${authentik-src}/website";
 
-  nodejs = nodejs_26;
-
-  npmDepsFetcherVersion = 2;
-  npmDepsHash = "sha256-5zAsS+Jw/hcBOws+MvFGZMMSn+NNKcpUmmkd9NO9fTY=";
-
   env.NODE_ENV = "production";
 
-  npmFlags = [
-    "--ignore-scripts"
-    "--legacy-peer-deps"
+  nativeBuildInputs = [
+    nodejs_26
+    pnpmConfigHook
+    pnpm
   ];
+
+  pnpmDeps = fetchPnpmDeps {
+    inherit (finalAttrs) pname version src;
+    inherit pnpm;
+    fetcherVersion = 4;
+    hash = "sha256-TV9f+BezxYHkXjhQiLl1WC3i0q8+oCfzd2fy3fktc0M=";
+  };
 
   postPatch = ''
     cp -v ${authentik-src}/SECURITY.md ../SECURITY.md
@@ -30,8 +40,6 @@ buildNpmPackage {
     mkdir -p ../lifecycle/container
     cp -v ${authentik-src}/lifecycle/container/compose.yml ../lifecycle/container/compose.yml
   '';
-
-  npmBuildScript = "build";
 
   installPhase = ''
     runHook preInstall
@@ -43,7 +51,11 @@ buildNpmPackage {
     # to avoid having other broken symlinks, these are not relevant for
     # production deployments anyways.
     rm $out/node_modules/@goauthentik/{prettier-config,tsconfig,eslint-config}
+    rm $out/integrations/node_modules/@goauthentik/docusaurus-config
+    rm $out/docs/node_modules/@goauthentik/docusaurus-config
+    rm $out/docusaurus-theme/node_modules/@goauthentik/docusaurus-config
+    rm $out/api/node_modules/@goauthentik/docusaurus-config
 
     runHook postInstall
   '';
-}
+})
