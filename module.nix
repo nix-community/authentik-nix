@@ -482,7 +482,6 @@ in
                 alias = "${cfg.authentikComponents.frontend}/";
                 tryFiles = "$uri $uri/ =404";
                 extraConfig = ''
-                  expires max;
                   access_log off;
                 '';
               };
