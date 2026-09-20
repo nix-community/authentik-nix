@@ -166,7 +166,6 @@ To run the main integration test execute (one of) the following:
 
 ```
 nix build .#checks.x86_64-linux.default --print-build-logs
-nix build .#checks.aarch64-linux.default --print-build-logs
 ```
 
 ## Binary Cache

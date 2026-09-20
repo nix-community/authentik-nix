@@ -3,7 +3,7 @@
   authentik-version,
   authentikComponents,
   stdenvNoCC,
-  pnpm_11,
+  pnpm_12,
   pnpmConfigHook,
   fetchPnpmDeps,
   nodejs_26,
@@ -11,7 +11,7 @@
 
 let
   nodejs = nodejs_26;
-  pnpm = pnpm_11.override { nodejs-slim = nodejs; };
+  pnpm = pnpm_12.override { nodejs-slim = nodejs; };
 in
 stdenvNoCC.mkDerivation (finalAttrs: {
   pname = "authentik-web";
@@ -29,7 +29,7 @@ stdenvNoCC.mkDerivation (finalAttrs: {
     inherit (finalAttrs) pname version src;
     inherit pnpm;
     fetcherVersion = 4;
-    hash = "sha256-GkM1r0Lwzsz6fEl6wGhUb9fd+dT6zX7gRqKYzTWpw1g=";
+    hash = "sha256-Nz29PxrRX8NPwWcl5WZI99KPgR8tDf2onO7tscILdjY=";
   };
 
   postPatch = ''

@@ -2,7 +2,7 @@
   description = "Nix package, NixOS module and VM integration test for authentik";
 
   inputs = {
-    systems.url = "github:nix-systems/default-linux";
+    systems.url = "github:nix-systems/x86_64-linux";
     flake-utils = {
       url = "github:numtide/flake-utils";
       inputs.systems.follows = "systems";
@@ -35,7 +35,7 @@
 
     authentik-src = {
       # change version string in outputs as well when updating
-      url = "github:goauthentik/authentik/version/2026.8.2";
+      url = "github:goauthentik/authentik/version/2026.8.3";
       flake = false;
     };
 
@@ -65,7 +65,7 @@
         ...
       }:
       let
-        authentik-version = "2026.8.2"; # to pass to the drvs of some components
+        authentik-version = "2026.8.3"; # to pass to the drvs of some components
       in
       {
         systems = import inputs.systems;
