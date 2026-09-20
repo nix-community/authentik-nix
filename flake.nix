@@ -2,7 +2,7 @@
   description = "Nix package, NixOS module and VM integration test for authentik";
 
   inputs = {
-    systems.url = "github:nix-systems/default-linux";
+    systems.url = "github:nix-systems/x86_64-linux";
     flake-utils = {
       url = "github:numtide/flake-utils";
       inputs.systems.follows = "systems";
