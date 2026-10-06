@@ -4,11 +4,7 @@
   authentik-version,
   rustPlatform,
   authentikComponents,
-  cmake,
   pkg-config,
-  go,
-  perl,
-  clangStdenv,
   cacert,
   python,
   zstd,
@@ -16,7 +12,7 @@
 
 # this adds a clang to the build environment, but it does not changes the compiler
 # cargo hands over to build scripts o crates: see AWS_LC_FIPS_SYS_HOST_CC
-(rustPlatform.buildRustPackage.override { stdenv = clangStdenv; }) {
+rustPlatform.buildRustPackage {
   pname = "authentik-rust";
   version = authentik-version;
   src = authentik-src;
@@ -28,22 +24,16 @@
     RUSTFLAGS = "--cfg tokio_unstable";
     PYO3_PYTHON = lib.getExe python;
 
-    # stop go from downloading itself, and use the nixpkgs compiler and toolchain.
-    GOTOOLCHAIN = "local";
-
     ZSTD_SYS_USE_PKG_CONFIG = "1";
-
-    # aws-lc-fips-sys has its own env var to ignore the compiler provided by cargo
-    AWS_LC_FIPS_SYS_HOST_CC = "${clangStdenv.cc}/bin/${clangStdenv.cc.targetPrefix}cc";
   };
 
-  cargoHash = "sha256-noFE9NB1yvGJRtNwATaFdRmiKWESUlEGjRX/EhXXXmI=";
+  cargoPatches = [
+    ./drop_rust_fips.patch
+  ];
+
+  cargoHash = "sha256-7Y2/vqv9d66Ci8lEtu1EglG0k9uMLiLXBZBA0EyJzRE=";
   nativeBuildInputs = [
     pkg-config
-    # for aws-lc-fips-sys
-    cmake
-    go
-    perl
   ];
 
   buildInputs = [
