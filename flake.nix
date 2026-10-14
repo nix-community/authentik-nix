@@ -88,7 +88,6 @@
                         frontend
                         gopkgs
                         rust
-                        docs
                         ;
                     }
                   )
@@ -113,7 +112,6 @@
               pkgs.lib.makeScope pkgs.newScope (final: {
                 authentikComponents = {
                   client-ts = final.callPackage ./components/client-ts.nix { };
-                  docs = final.callPackage ./components/docs.nix { };
                   frontend = final.callPackage ./components/frontend.nix { };
                   pythonEnv = final.callPackage ./components/pythonEnv.nix { };
                   # server + outposts
@@ -162,7 +160,6 @@
 
             packages = {
               inherit (authentikComponents)
-                docs
                 frontend
                 pythonEnv
                 gopkgs

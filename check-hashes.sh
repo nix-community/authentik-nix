@@ -6,7 +6,6 @@ fodcheck() {
   nix build "${1}" --rebuild --no-link
 }
 
-fodcheck .#docs.pnpmDeps
 fodcheck .#frontend.pnpmDeps
 
 fodcheck .#rust.cargoDeps

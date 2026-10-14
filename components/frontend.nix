@@ -39,7 +39,7 @@ stdenvNoCC.mkDerivation (finalAttrs: {
 
   preBuild = ''
     cp -rv --no-preserve=mode ${authentik-src}/packages ../
-    ln -sv ${authentikComponents.docs} ../website
+    ln -sv ${authentik-src}/website ../website
     ln -sv ${authentik-src}/package.json ../
   '';
 
