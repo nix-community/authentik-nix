@@ -35,7 +35,7 @@
 
     authentik-src = {
       # change version string in outputs as well when updating
-      url = "github:goauthentik/authentik/version/2026.8.3";
+      url = "github:goauthentik/authentik/version/2026.8.4";
       flake = false;
     };
 
@@ -65,7 +65,7 @@
         ...
       }:
       let
-        authentik-version = "2026.8.3"; # to pass to the drvs of some components
+        authentik-version = "2026.8.4"; # to pass to the drvs of some components
       in
       {
         systems = import inputs.systems;
