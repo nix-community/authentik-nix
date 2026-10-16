@@ -6,11 +6,11 @@ fodcheck() {
   nix build "${1}" --rebuild --no-link
 }
 
-fodcheck .#docs.pnpmDeps 
-fodcheck .#frontend.pnpmDeps 
+fodcheck .#docs.pnpmDeps
+fodcheck .#frontend.pnpmDeps
 
-fodcheck .#rust.cargoDeps 
-fodcheck .#gopkgs.goModule 
+fodcheck .#rust.cargoDeps
+fodcheck .#gopkgs.goModules
 
 fodcheck .#terraform-provider-authentik.src
-fodcheck .#terraform-provider-authentik.goModules 
+fodcheck .#terraform-provider-authentik.goModules
