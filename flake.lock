@@ -20,11 +20,11 @@
     "client-ts-generator-src": {
       "flake": false,
       "locked": {
-        "lastModified": 1791895415,
-        "narHash": "sha256-jc7MNuoZake3JTLdfOsFBikEoiTcAEJc8T7d2n/KVvk=",
+        "lastModified": 1792072131,
+        "narHash": "sha256-wvGKKlRBRcGA3lHFugqQa6dA6HFHLxEMiehDa5cIiLQ=",
         "owner": "goauthentik",
         "repo": "client-ts",
-        "rev": "66bf476287f8e4cef4ede96e8bdbec6ddf5bebb6",
+        "rev": "f11dc7387568edf8189bdfddc39fb85620f9fbbb",
         "type": "github"
       },
       "original": {
