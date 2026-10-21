@@ -31,7 +31,7 @@ rustPlatform.buildRustPackage {
     ./drop_rust_fips.patch
   ];
 
-  cargoHash = "sha256-3BM66PbXe/pFOv5Mf1+Q1vnO6FSlJfJL2b/Ke9RMNvw=";
+  cargoHash = "sha256-rx48g02atD4Rau/oUi3K7vGQrfGpOoY5zcivM+x/BN0=";
   nativeBuildInputs = [
     pkg-config
   ];
