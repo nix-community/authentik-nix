@@ -196,6 +196,12 @@
                   inherit (self) nixosModules;
                 }
               );
+              xff = (
+                import tests/xff-vmtest.nix {
+                  inherit pkgs;
+                  inherit (self) nixosModules;
+                }
+              );
               override-scope = (
                 import tests/override-scope.nix {
                   inherit pkgs authentik-version;
