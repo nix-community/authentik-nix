@@ -320,6 +320,13 @@ in
               host = mkDefault "/run/postgresql";
             };
             cert_discovery_dir = mkIf (cfg.nginx.enable && cfg.nginx.enableACME) "env://CREDENTIALS_DIRECTORY";
+            # the module's nginx connects over loopback; the upstream default also
+            # trusts all RFC1918 ranges, so clients on a private network would be
+            # skipped as proxies and their X-Forwarded-For entries believed
+            listen.trusted_proxy_cidrs = mkIf cfg.nginx.enable (mkDefault [
+              "127.0.0.0/8"
+              "::1/128"
+            ]);
             storage.media = {
               backend = mkDefault "file";
               file = mkDefault {

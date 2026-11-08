@@ -1,0 +1,89 @@
+Revert goauthentik/authentik#26353 (use the leftmost X-Forwarded-For IP).
+
+The leftmost X-Forwarded-For entry is client-controlled: behind a proxy that
+appends ($proxy_add_x_forwarded_for in nginx), any client picks the IP
+authentik records. Restores rightmost-untrusted from 2026.8.3. Drop once
+https://github.com/goauthentik/authentik/issues/26941 is fixed upstream.
+
+--- a/packages/ak-axum/src/extract/client_ip.rs
++++ b/packages/ak-axum/src/extract/client_ip.rs
+@@ -11,7 +11,10 @@
+ };
+ use tracing::{Span, instrument};
+
+-use crate::{accept::proxy_protocol::ProxyProtocolState, extract::trusted_proxy::TrustedProxy};
++use crate::{
++    accept::proxy_protocol::ProxyProtocolState,
++    extract::trusted_proxy::{TrustedProxy, ip_addr_trusted},
++};
+
+ /// Client IP.
+ ///
+@@ -33,23 +36,33 @@
+     }
+ }
+
+-/// Get the leftmost IP from the `X-Forwarded-For` chain.
+-fn extract_from_x_forwarded_for(headers: &HeaderMap) -> Option<IpAddr> {
++/// Get the rightmost IP from the `X-Forwarded-For` chain that is not itself a
++/// trusted proxy.
++fn rightmost_untrusted_x_forwarded_for(headers: &HeaderMap) -> Option<IpAddr> {
++    let mut forwarded_ips = Vec::new();
+     for value in headers.get_all("x-forwarded-for") {
+         let Ok(value) = value.to_str() else {
+             continue;
+         };
+         for part in value.split(',') {
+             let part = part.trim();
+-            if let Ok(ip) = part.parse::<IpAddr>() {
+-                return Some(ip);
++            let ip = if let Ok(ip) = part.parse::<IpAddr>() {
++                ip
+             } else if let Ok(socket_addr) = part.parse::<SocketAddr>() {
+-                return Some(socket_addr.ip());
+-            }
++                socket_addr.ip()
++            } else {
++                continue;
++            };
++            forwarded_ips.push(ip);
+         }
+     }
+
+-    None
++    forwarded_ips
++        .iter()
++        .rev()
++        .find(|ip| ip_addr_trusted(ip).is_none())
++        .or_else(|| forwarded_ips.first())
++        .copied()
+ }
+
+ /// Get the client IP from the request.
+@@ -62,7 +75,7 @@
+         .0;
+
+     if is_trusted {
+-        if let Some(ip) = extract_from_x_forwarded_for(&parts.headers) {
++        if let Some(ip) = rightmost_untrusted_x_forwarded_for(&parts.headers) {
+             return ip;
+         }
+
+@@ -127,7 +140,7 @@
+
+         let client_ip = extract_client_ip(&mut parts).await;
+
+-        assert_eq!(client_ip, Ipv4Addr::new(192, 0, 2, 51),);
++        assert_eq!(client_ip, Ipv4Addr::new(192, 0, 2, 42),);
+     }
+
+     #[tokio::test]
+@@ -239,7 +252,7 @@
+
+         let client_ip = extract_client_ip(&mut parts).await;
+
+-        assert_eq!(client_ip, Ipv4Addr::new(192, 0, 2, 1));
++        assert_eq!(client_ip, Ipv4Addr::new(192, 0, 2, 3));
+     }
+
+     #[tokio::test]
