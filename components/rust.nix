@@ -6,6 +6,7 @@
   authentikComponents,
   pkg-config,
   cacert,
+  aws-lc,
   python,
   zstd,
 }:
@@ -41,6 +42,7 @@ rustPlatform.buildRustPackage {
   ];
 
   buildInputs = [
+    aws-lc
     python
     zstd
   ];
