@@ -189,7 +189,6 @@
               };
             };
             checks = {
-              default = self.checks.${system}.vmtest;
               vmtest = (
                 import tests/minimal-vmtest.nix {
                   inherit pkgs authentik-version;
