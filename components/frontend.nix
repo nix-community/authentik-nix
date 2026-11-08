@@ -6,11 +6,11 @@
   pnpm_12,
   pnpmConfigHook,
   fetchPnpmDeps,
-  nodejs_26,
+  nodejs-slim_26,
 }:
 
 let
-  nodejs = nodejs_26;
+  nodejs = nodejs-slim_26;
   pnpm = pnpm_12.override { nodejs-slim = nodejs; };
 in
 stdenvNoCC.mkDerivation (finalAttrs: {
@@ -20,7 +20,7 @@ stdenvNoCC.mkDerivation (finalAttrs: {
   src = "${authentik-src}/web";
 
   nativeBuildInputs = [
-    nodejs_26
+    nodejs-slim_26
     pnpmConfigHook
     pnpm
   ];
@@ -46,8 +46,8 @@ stdenvNoCC.mkDerivation (finalAttrs: {
   buildPhase = ''
     runHook preBuild
 
-    npm run build
-    npm run build:sfe
+    pnpm run build
+    pnpm run build:sfe
 
     runHook postBuild
   '';
