@@ -36,7 +36,7 @@ rustPlatform.buildRustPackage {
     ./revert-leftmost-x-forwarded-for.patch
   ];
 
-  cargoHash = "sha256-rx48g02atD4Rau/oUi3K7vGQrfGpOoY5zcivM+x/BN0=";
+  cargoHash = "sha256-S+MTGkCdAnV10kqoz/Fw/5eg6oKWx+Tqwn27WHtlxOE=";
   nativeBuildInputs = [
     pkg-config
   ];
