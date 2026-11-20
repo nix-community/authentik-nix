@@ -16,74 +16,76 @@
   Then, that scope is passed to the module via the `services.authentik.authentikComponents` option
   And finally, the test script checks if the patched welcome string is present.
 */
-
 let
   customWelcome = "Welcome to custom authentik";
-
-  # creates a new scope using python 3.12 for mkPoetryEnv
-  # and overrides the welcome string for the default oobe intial-setup flow
-  customScope = (mkAuthentikScope { inherit pkgs; }).overrideScope (
-    final: prev: {
-      authentikComponents = prev.authentikComponents // {
-        pythonEnv = prev.authentikComponents.pythonEnv.overrideAttrs (_: {
-          python = pkgs.python312;
-        });
-        staticWorkdirDeps = prev.authentikComponents.staticWorkdirDeps.overrideAttrs (oA: {
-          buildCommand =
-            oA.buildCommand
-            + ''
-              rm -v $out/blueprints
-              cp -vr ${prev.authentik-src}/blueprints $out/blueprints
-              substituteInPlace $out/blueprints/default/flow-oobe.yaml \
-                --replace "Welcome to authentik" "${customWelcome}"
-            '';
-        });
-      };
-    }
-  );
 in
 pkgs.testers.runNixOSTest {
   name = "authentik";
   nodes = {
-    authentik = {
-      virtualisation = {
-        cores = 6;
-        memorySize = 8192;
-      };
-      imports = [
-        nixosModules.default
-        "${pkgs.path}/nixos/tests/common/user-account.nix"
-        "${pkgs.path}/nixos/tests/common/x11.nix"
-      ];
-
-      # Keep in mind that the secret still ends up in the store and is world-readable because the
-      # systemd-tmpfiles config lands in the store.
-      # This is just a trick to not pass a store-path (which is prohibited) to `environmentFile`
-      # without having to integrate secret managers like agenix or sops-nix into the test.
-      # Don't do this in production.
-      systemd.tmpfiles.rules = [
-        "f /etc/authentik.env 0700 root root - AUTHENTIK_SECRET_KEY=notastorepath"
-      ];
-
-      services.authentik = {
-        enable = true;
-        environmentFile = "/etc/authentik.env";
-        nginx = {
-          enable = true;
-          host = "localhost";
+    authentik =
+      { pkgs, modulesPath, ... }:
+      let
+        # creates a new scope using python 3.12 for mkPoetryEnv
+        # and overrides the welcome string for the default oobe intial-setup flow
+        customScope = (mkAuthentikScope { inherit pkgs; }).overrideScope (
+          final: prev: {
+            authentikComponents = prev.authentikComponents // {
+              pythonEnv = prev.authentikComponents.pythonEnv.overrideAttrs (_: {
+                python = pkgs.python312;
+              });
+              staticWorkdirDeps = prev.authentikComponents.staticWorkdirDeps.overrideAttrs (oA: {
+                buildCommand = oA.buildCommand + ''
+                  rm -v $out/blueprints
+                  cp -vr ${prev.authentik-src}/blueprints $out/blueprints
+                  substituteInPlace $out/blueprints/default/flow-oobe.yaml \
+                    --replace "Welcome to authentik" "${customWelcome}"
+                '';
+              });
+            };
+          }
+        );
+      in
+      {
+        virtualisation = {
+          cores = 6;
+          memorySize = 8192;
+          # required for tests to run on darwin host
+          qemu.options = [ "-vga none -device virtio-gpu-pci" ];
         };
-        # pass authentikComponents with patched pythonEnv and staticWorkdirDeps
-        inherit (customScope) authentikComponents;
-        settings.disable_update_check = true;
-      };
+        imports = [
+          nixosModules.default
+          "${modulesPath}/../tests/common/user-account.nix"
+          "${modulesPath}/../tests/common/x11.nix"
+        ];
 
-      services.xserver.enable = true;
-      test-support.displayManager.auto.user = "alice";
-      environment.systemPackages = with pkgs; [
-        firefox
-        xdotool
-      ];
-    };
+        # Keep in mind that the secret still ends up in the store and is world-readable because the
+        # systemd-tmpfiles config lands in the store.
+        # This is just a trick to not pass a store-path (which is prohibited) to `environmentFile`
+        # without having to integrate secret managers like agenix or sops-nix into the test.
+        # Don't do this in production.
+        systemd.tmpfiles.rules = [
+          "f /etc/authentik.env 0700 root root - AUTHENTIK_SECRET_KEY=notastorepath"
+        ];
+
+        services.authentik = {
+          enable = true;
+          environmentFile = "/etc/authentik.env";
+          nginx = {
+            enable = true;
+            host = "localhost";
+          };
+          # pass authentikComponents with patched pythonEnv and staticWorkdirDeps
+          inherit (customScope) authentikComponents;
+          settings.disable_update_check = true;
+        };
+
+        services.xserver.enable = true;
+        test-support.displayManager.auto.user = "alice";
+        environment.systemPackages = with pkgs; [
+          firefox
+          xdotool
+        ];
+      };
   };
 
   enableOCR = true;
