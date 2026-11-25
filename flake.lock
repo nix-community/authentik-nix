@@ -3,16 +3,16 @@
     "authentik-src": {
       "flake": false,
       "locked": {
-        "lastModified": 1795137590,
-        "narHash": "sha256-SMY+LXVpLTl7gT86Ul0sAreR2o6p+hRQ+iwPw56RVpc=",
+        "lastModified": 1795625680,
+        "narHash": "sha256-O76dXzlBCc5L7Ewry7Kl2FRhYZ/GBw7O5JCKgLRVI6M=",
         "owner": "goauthentik",
         "repo": "authentik",
-        "rev": "98ec4a7684fcb0cccfe78888a12df1df1ad938be",
+        "rev": "37f6d5ecba4c29ad63bb60b1f0fe742560dcb050",
         "type": "github"
       },
       "original": {
         "owner": "goauthentik",
-        "ref": "version/2026.8.6",
+        "ref": "version/2026.8.7",
         "repo": "authentik",
         "type": "github"
       }
@@ -20,11 +20,11 @@
     "client-ts-generator-src": {
       "flake": false,
       "locked": {
-        "lastModified": 1793979246,
-        "narHash": "sha256-Amn1ZMOP2lgX203/zBcgsXO3ST1ln9+OruQmJM9Jzmk=",
+        "lastModified": 1795438551,
+        "narHash": "sha256-ErSUTsHDDChfZkZ/WKzqRueE/Zwvnx+caII35f0/SY0=",
         "owner": "goauthentik",
         "repo": "client-ts",
-        "rev": "e8cb62afd9b86fd54ce1f22d12064465a3f1fec9",
+        "rev": "ba7f2f42f438cca186bb42c5a8ea89bf7fcd7a54",
         "type": "github"
       },
       "original": {
